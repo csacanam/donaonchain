@@ -169,3 +169,9 @@ regress:
 
 There is no public endpoint listing a commerce's invoices, so every invoice id
 is persisted at creation time. An id lost there is lost permanently.
+
+## Deployments
+
+Pushing to `main` deploys to production automatically; pull requests get their
+own preview URL. Environment variables live in Vercel, not in the repository —
+`.env.example` lists what has to be set.
