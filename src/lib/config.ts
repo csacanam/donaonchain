@@ -25,6 +25,35 @@ export function webhookSecret(): string | null {
 }
 
 /**
+ * Webhook signing secrets, one per Voulti commerce.
+ *
+ * The secret is issued per commerce, and the delivery carries no `commerce_id`
+ * — the payload is only `invoice_id`, the amounts, the status and our own
+ * `reference`. So a single endpoint holding a single secret cannot verify
+ * deliveries from two commerces: it would reject one of them as a bad
+ * signature. Each commerce therefore gets its own path, and the path is what
+ * selects the secret.
+ *
+ * The map is explicit rather than built from the slug (`VOULTI_WEBHOOK_SECRET_`
+ * + slug.toUpperCase()) so that a crafted URL cannot reach for an environment
+ * variable we never meant to expose here.
+ */
+const COMMERCE_SECRET_ENV: Record<string, string> = {
+  peewah: "VOULTI_WEBHOOK_SECRET_PEEWAH",
+  reficolombia: "VOULTI_WEBHOOK_SECRET_REFICOLOMBIA",
+};
+
+export function webhookSecretFor(commerce: string): string | null {
+  const name = COMMERCE_SECRET_ENV[commerce.toLowerCase()];
+  if (!name) return null;
+  return process.env[name]?.trim() || null;
+}
+
+export function knownCommerce(commerce: string): boolean {
+  return commerce.toLowerCase() in COMMERCE_SECRET_ENV;
+}
+
+/**
  * Donations can only be taken when a commerce is configured. Until then the
  * UI shows an explicit "not live yet" state instead of a button that 500s.
  */

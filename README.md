@@ -69,9 +69,18 @@ app.voulti.com → Account → Networks.
 3. Copy the `commerce_id` from **Receive Payments → Developers** into
    `VOULTI_COMMERCE_ID`.
 4. Set the `confirmation_url` on that same page to
-   `https://www.donaonchain.com/api/webhooks/voulti` — the apex 308-redirects to
-   `www`, so point it at the final host — generate a signing secret, and
-   copy it into `VOULTI_WEBHOOK_SECRET`.
+   `https://www.donaonchain.com/api/webhooks/voulti/reficolombia` — the apex
+   308-redirects to `www`, so point it at the final host — generate a signing
+   secret, and copy it into `VOULTI_WEBHOOK_SECRET_REFICOLOMBIA`.
+
+   **One URL per commerce.** The signing secret is issued per commerce and the
+   delivery body carries no `commerce_id`, so a shared endpoint holding one
+   secret would verify one merchant and reject the other as a forgery. The path
+   is the only thing left to select the secret by. Slugs are declared in
+   `COMMERCE_SECRET_ENV` in `src/lib/config.ts`; an undeclared slug rejects
+   every delivery. `/api/webhooks/voulti` without a slug still works and reads
+   `VOULTI_WEBHOOK_SECRET`, kept only so an already-registered URL does not
+   stop settling.
 5. Use **Test my webhook** on that page to confirm the endpoint answers. It
    fires with `invoice_id: 00000000-0000-0000-0000-000000000000`, which cannot
    collide with a real donation's dedupe key.
