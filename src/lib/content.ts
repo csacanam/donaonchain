@@ -212,14 +212,14 @@ export const COPY = {
     manager: {
       title: "Who manages the donations?",
       body: "ReFi Colombia receives and manages the campaign funds. They are responsible for deciding the disbursements, connecting with organisations and affected people, and publishing public updates about how the resources are used.",
-      body2: "DonaOnchain does not hold the funds and cannot move them.",
+      body2: "DonaOnchain never receives the money and cannot decide how it is spent.",
     },
     transparency: {
       title: "Verify it yourself",
       lede: "You do not have to trust the totals shown by this site. The donation wallet and every movement in and out of it are public.",
       intakeLabel: "Donation wallet",
       intakeNote:
-        "Every donation settles here. The wallet belongs to ReFi Colombia — nobody running this site can move what arrives, and every movement in or out of it is public.",
+        "This wallet belongs to ReFi Colombia. Payments do not land in it directly: Voulti processes them and credits the amount to ReFi Colombia inside its settlement contract, and ReFi Colombia withdraws from there to this wallet whenever they choose, without needing anyone's approval. Each withdrawal appears in the movements below.",
       walletPending: "Being published — the address will appear here before donations open.",
       ledgerTitle: "Public donation ledger",
       ledgerEmpty:
@@ -250,7 +250,7 @@ export const COPY = {
         {
           title: "The money",
           items: [
-            { q: "Who receives and manages the money?", a: "ReFi Colombia. Donations settle into a wallet they control and they are responsible for deciding how the funds are distributed. DonaOnchain does not hold the funds and cannot move them." },
+            { q: "Who receives and manages the money?", a: "ReFi Colombia. They decide how the funds are distributed, and they can withdraw them at any time on their own. Between the payment and that withdrawal the money sits in the settlement contract of Voulti, the payment processor \u2014 which means Voulti can technically move it during that window. That is why withdrawing promptly matters, and why this page shows you both steps rather than claiming the money is untouchable." },
             { q: "Who decides how the funds are used?", a: "ReFi Colombia. We are intentionally not publishing fixed percentages in advance because needs can change during the emergency. ReFi Colombia will decide the disbursements and publish updates through its public channels." },
             { q: "What happens if something goes wrong after the donation settles?", a: "ReFi Colombia controls the funds. DonaOnchain cannot reverse or recover funds on a donor's behalf after settlement. The purpose of the public wallets and ledger is to make the movements visible rather than asking donors to trust our internal records." },
           ],
@@ -259,7 +259,7 @@ export const COPY = {
           title: "Verifying it",
           items: [
             { q: "How is this different from sending money to a bank account?", a: "With a traditional donation account, the public normally has to trust the total reported by the organiser. Here, the donation transactions and published wallet movements can be independently checked onchain. That does not prove how money is used after it is converted or spent offchain. ReFi Colombia is responsible for publishing updates about that part." },
-            { q: "What exactly can I verify onchain?", a: "You can verify the donation transaction, amount, transaction hash, receiving address and every movement of the published wallet. The blockchain cannot by itself verify an offchain purchase or the final use of converted funds." },
+            { q: "What exactly can I verify onchain?", a: "Two steps, both public. First the donation itself: the transaction, the amount and the hash, paid into Voulti\u2019s settlement contract. Then the withdrawal from that contract into ReFi Colombia\u2019s wallet, listed in the movements above. The blockchain cannot by itself verify an offchain purchase or the final use of converted funds." },
           ],
         },
         {
@@ -437,14 +437,14 @@ export const COPY = {
     manager: {
       title: "¿Quién administra las donaciones?",
       body: "ReFi Colombia recibe y administra los recursos de la campaña. Ellos son responsables de decidir los desembolsos, conectarse con organizaciones y personas afectadas, y publicar actualizaciones sobre cómo se utilizan los recursos.",
-      body2: "DonaOnchain no custodia los fondos ni puede moverlos.",
+      body2: "DonaOnchain nunca recibe el dinero ni decide en qué se gasta.",
     },
     transparency: {
       title: "Verifícalo tú mismo",
       lede: "No tienes que confiar en los totales que muestra este sitio. La wallet de donaciones y todos sus movimientos de entrada y salida son públicos.",
       intakeLabel: "Wallet de donaciones",
       intakeNote:
-        "Todas las donaciones se liquidan aquí. La wallet es de ReFi Colombia: nadie que opere este sitio puede mover lo que llega, y cada entrada y salida es pública.",
+        "Esta wallet es de ReFi Colombia. Los pagos no llegan directo aquí: Voulti los procesa y le acredita el monto a ReFi Colombia dentro de su contrato de liquidación, y ReFi Colombia retira desde ahí hacia esta wallet cuando quiera, sin necesitar la aprobación de nadie. Cada retiro aparece en los movimientos de abajo.",
       walletPending:
         "Pendiente de publicación — la dirección aparecerá aquí antes de abrir las donaciones.",
       ledgerTitle: "Libro público de donaciones",
@@ -477,7 +477,7 @@ export const COPY = {
         {
           title: "El dinero",
           items: [
-            { q: "¿Quién recibe y administra el dinero?", a: "ReFi Colombia. Las donaciones se liquidan en una wallet que ellos controlan y son responsables de decidir cómo se distribuyen los recursos. DonaOnchain no custodia los fondos ni puede moverlos." },
+            { q: "¿Quién recibe y administra el dinero?", a: "ReFi Colombia. Ellos deciden cómo se distribuyen los recursos y pueden retirarlos cuando quieran, por su cuenta. Entre el pago y ese retiro el dinero está en el contrato de liquidación de Voulti, la pasarela de pagos, lo que significa que Voulti técnicamente puede moverlo durante esa ventana. Por eso importa que retiren pronto, y por eso esta página te muestra los dos pasos en vez de afirmar que el dinero es intocable." },
             { q: "¿Quién decide cómo se utilizan los recursos?", a: "ReFi Colombia. Intencionalmente no estamos publicando porcentajes fijos por adelantado porque las necesidades pueden cambiar durante la emergencia. ReFi Colombia decidirá los desembolsos y publicará actualizaciones a través de sus canales." },
             { q: "¿Qué pasa si algo sale mal después de que la donación se liquida?", a: "ReFi Colombia controla los recursos. DonaOnchain no puede reversar ni recuperar fondos en nombre de un donante después de la liquidación. El propósito de las wallets públicas y del libro de donaciones es hacer visibles los movimientos en lugar de pedirle a los donantes que confíen en nuestros registros internos." },
           ],
@@ -486,7 +486,7 @@ export const COPY = {
           title: "Cómo verificarlo",
           items: [
             { q: "¿En qué se diferencia esto de enviar dinero a una cuenta bancaria?", a: "Con una cuenta de donaciones tradicional, normalmente el público tiene que confiar en el total reportado por el organizador. Aquí, las transacciones de las donaciones y los movimientos de las wallets publicadas se pueden verificar de forma independiente onchain. Eso no prueba cómo se utiliza el dinero después de convertirlo o gastarlo fuera de la cadena. ReFi Colombia es responsable de publicar actualizaciones sobre esa parte." },
-            { q: "¿Qué puedo verificar exactamente onchain?", a: "Puedes verificar la transacción de la donación, el monto, el hash, la dirección que recibió los fondos y los movimientos entre las wallets publicadas. La blockchain por sí sola no puede verificar una compra fuera de la cadena ni el uso final de recursos ya convertidos." },
+            { q: "¿Qué puedo verificar exactamente onchain?", a: "Dos pasos, ambos públicos. Primero la donación: la transacción, el monto y el hash, pagados al contrato de liquidación de Voulti. Después el retiro desde ese contrato hacia la wallet de ReFi Colombia, listado en los movimientos de arriba. La blockchain por sí sola no puede verificar una compra fuera de la cadena ni el uso final de recursos ya convertidos." },
           ],
         },
         {
