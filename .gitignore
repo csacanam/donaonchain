@@ -39,3 +39,23 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# .env* above also swallows the template, which is the one env file that
+# SHOULD ship — without it nobody cloning this knows what to configure.
+!.env.example
+
+# Internal working documents. This repository is public: copy briefs, review
+# notes and strategy drafts discuss weaknesses and unshipped decisions, and
+# none of it belongs in front of donors. Keep them in a sibling folder.
+*-BRIEF.md
+*-brief.md
+COPY-*.md
+/internal/
+/_private/
+
+# Agent tooling installed into the project by a skills installer. Third-party
+# documentation, not part of this codebase — it would add ~36 files of noise to
+# a public repo and the symlinks under .claude point outside it.
+/.agents/
+/.claude/
+/skills-lock.json
