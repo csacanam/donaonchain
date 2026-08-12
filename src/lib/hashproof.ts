@@ -99,21 +99,35 @@ async function paidFetch(): Promise<typeof globalThis.fetch> {
  * — so the template contributes exactly one field: the holder's name, sitting
  * inside the dashed box the design leaves for it.
  *
+ * IT IS REFERENCED BY SLUG, NOT REDEFINED. Sending the definition creates the
+ * template, and it can only be created once: every issuance after the first
+ * came back `400 template_conflict — Template already exists. Use
+ * template_slug or template_id.` and returned no certificate at all. The full
+ * definition below is therefore the FALLBACK, sent only when the slug turns
+ * out not to exist yet.
+ */
+const TEMPLATE_SLUG =
+  process.env.HASHPROOF_TEMPLATE_SLUG?.trim() || "donaonchain-colombia-2026";
+
+/**
+ * The definition used to create the template the first time.
+ *
  * Coordinates are in the background's own pixels (1122 × 1402). The dashed box
  * runs roughly x 151→965, y 589→823, so the name is placed centred within it.
  *
  * HashProof fetches the background over the public internet — there is no
- * upload endpoint — so HASHPROOF_BACKGROUND_URL must be a URL it can reach.
- * A preview deployment behind Vercel Auth will NOT work; use the production
- * domain. Without it, the default HashProof design is used instead.
+ * upload endpoint — so HASHPROOF_BACKGROUND_URL must be a URL it can reach. A
+ * preview deployment behind Vercel Auth will NOT work; use the production
+ * domain. Without it there is nothing to create, and the default HashProof
+ * design is used instead.
  */
-function templateFields(): Record<string, unknown> {
+function templateDefinition(): Record<string, unknown> | null {
   const background = process.env.HASHPROOF_BACKGROUND_URL?.trim();
-  if (!background) return {};
+  if (!background) return null;
 
   return {
     template: {
-      slug: process.env.HASHPROOF_TEMPLATE_SLUG?.trim() || "donaonchain-colombia-2026",
+      slug: TEMPLATE_SLUG,
       name: "DonaOnchain — We Stand With Colombia",
       background_url: background,
       page_width: 1122,
@@ -136,6 +150,14 @@ function templateFields(): Record<string, unknown> {
       ],
     },
   };
+}
+
+/** Whether a failure means "that slug does not exist yet", not "bad request". */
+function templateMissing(status: number, body: string): boolean {
+  return (
+    status === 404 ||
+    /template_not_found|template not found|does not exist|unknown template/i.test(body)
+  );
 }
 
 function formatUsd(amount: number): string {
@@ -166,9 +188,8 @@ export async function issueDonationCertificate(
       })
     : "";
 
-  const payload = {
+  const base = {
     ...issuerFields(),
-    ...templateFields(),
     holder: { full_name: name },
     context: {
       type: "other",
@@ -186,18 +207,40 @@ export async function issueDonationCertificate(
     },
   };
 
+  const definition = templateDefinition();
+
   try {
     const doFetch = await paidFetch();
-    const res = await doFetch(ISSUE_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+    const post = (extra: Record<string, unknown>) =>
+      doFetch(ISSUE_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...base, ...extra }),
+      });
+
+    // Reference the template, never redefine it. Only one of template_slug,
+    // template_id and template may be sent at all.
+    let res = await post(definition ? { template_slug: TEMPLATE_SLUG } : {});
 
     if (!res.ok) {
-      console.error("[hashproof] issuance failed", res.status, await res.text());
-      return null;
+      const body = await res.text();
+
+      // First run on a fresh HashProof account: the slug does not exist yet,
+      // so send the definition once to create it. Any other failure is not
+      // something a second paid attempt would fix.
+      if (definition && templateMissing(res.status, body)) {
+        console.warn(`[hashproof] template ${TEMPLATE_SLUG} missing — creating it`);
+        res = await post(definition);
+        if (!res.ok) {
+          console.error("[hashproof] creation failed", res.status, await res.text());
+          return null;
+        }
+      } else {
+        console.error("[hashproof] issuance failed", res.status, body);
+        return null;
+      }
     }
+
     return (await res.json()) as IssuedCredential;
   } catch (err) {
     console.error("[hashproof] issuance threw", err);
