@@ -65,15 +65,21 @@ const EMPTY: OnchainView = {
 /** Bounds one invocation so a cold cache cannot hang the page indefinitely. */
 const MAX_CHUNKS_PER_CHAIN = 12;
 
-export function trackedAddresses(): { intake: string | null; treasury: string | null } {
+/**
+ * The wallet this section is about.
+ *
+ * There used to be a second one — a treasury the intake wallet was swept into
+ * — and the reader still understands transfers between two tracked addresses
+ * (see `internal` below). It deliberately no longer reads a treasury from the
+ * environment: the site publishes one wallet, so anything leaving it is an
+ * outflow a donor should see, not an internal move to hide.
+ */
+export function trackedAddresses(): { intake: string | null } {
   const norm = (v?: string) => {
     const t = v?.trim();
     return t && /^0x[a-fA-F0-9]{40}$/.test(t) ? t.toLowerCase() : null;
   };
-  return {
-    intake: norm(process.env.NEXT_PUBLIC_INTAKE_ADDRESS),
-    treasury: norm(process.env.NEXT_PUBLIC_TREASURY_ADDRESS),
-  };
+  return { intake: norm(process.env.NEXT_PUBLIC_INTAKE_ADDRESS) };
 }
 
 let redisClient: Redis | null = null;
@@ -273,8 +279,8 @@ async function loadStored(chainKey: string, limit: number): Promise<Movement[]> 
 }
 
 export async function getOnchainView(limit = 25): Promise<OnchainView> {
-  const { intake, treasury } = trackedAddresses();
-  const addresses = [intake, treasury].filter((a): a is string => a !== null);
+  const { intake } = trackedAddresses();
+  const addresses = [intake].filter((a): a is string => a !== null);
   if (addresses.length === 0) return EMPTY;
 
   const tracked = new Set(addresses);

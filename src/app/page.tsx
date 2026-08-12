@@ -10,7 +10,6 @@ import {
   intakeAddress,
   networkLabel,
   SITE,
-  treasuryAddress,
 } from "@/lib/config";
 import { getCachedOnchain, getCachedStats } from "@/lib/stats";
 import { trackedAddresses } from "@/lib/onchain";
@@ -56,7 +55,6 @@ export default async function HomePage() {
       donorCount={stats.donorCount}
       ledger={ledger}
       intakeAddress={intakeAddress() ?? tracked.intake}
-      treasuryAddress={treasuryAddress() ?? tracked.treasury}
       onchainConfigured={onchain.configured}
       movements={movements}
       contactEmail={SITE.contactEmail}

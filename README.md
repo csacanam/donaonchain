@@ -40,22 +40,30 @@ credentials degrade specific features rather than breaking the page:
 
 ## The custody design, and why it looks like this
 
-Donations follow: **donor → intake wallet → multi-sig treasury → beneficiaries.**
+Donations follow: **donor → ReFi Colombia's wallet → beneficiaries.** One
+wallet, published on the page, and nobody operating this site can move what
+lands in it.
 
-The intake wallet is a plain EOA, and that is deliberate. Voulti settles to a
-single address across every network a commerce enables, and **a Safe deployed
-on one chain does not exist at that address on the others** — a donor paying on
-Base into a Celo-only Safe sends funds to an address with no contract, which is
-recoverable only by redeploying the Safe there with identical parameters, and
-sometimes not at all. An EOA is valid on all five chains by construction.
+There used to be a second published address — an intake wallet swept into a
+multi-signature treasury — and the site said in four places that moving funds
+required several signers. The Safe we were given turned out to be `1-of-1`:
+`getThreshold()` returned 1 and `getOwners()` returned a single address. One
+key moved everything. Rather than publish a custody claim a donor could
+disprove in ten seconds, the second wallet was removed entirely. **If a real
+multi-sig is set up later, restore the claim and the address together — never
+one without the other.**
 
-The cost of that choice is that the intake wallet is single-key custody. The
-mitigation is operational, not technical: **sweep it to the treasury often.**
-The exposure window is exactly the time funds sit in the intake wallet.
+**The published wallet must be a plain EOA.** Voulti settles to a single
+address across every network a commerce enables, and **a contract deployed on
+one chain does not exist at that address on the others** — a donor paying on
+Base into a Celo-only contract wallet sends funds to an address with no code
+and no key able to sign for them. This is not hypothetical here: the wallet
+first configured for this campaign, `0xcdbbc0db…`, carries 12.5 KB of code on
+Celo and none on the other four chains. Verify any replacement with
+`eth_getCode` on all five before publishing it.
 
-If you would rather point Voulti straight at a Safe, that is fine — but then
-enable **only** the chain where the Safe is actually deployed, in
-app.voulti.com → Account → Networks.
+If you would rather point Voulti at a contract wallet anyway, enable **only**
+the chain where it actually exists, in app.voulti.com → Account → Networks.
 
 ## Going live — checklist
 
@@ -84,8 +92,7 @@ app.voulti.com → Account → Networks.
 5. Use **Test my webhook** on that page to confirm the endpoint answers. It
    fires with `invoice_id: 00000000-0000-0000-0000-000000000000`, which cannot
    collide with a real donation's dedupe key.
-6. Publish both addresses: `NEXT_PUBLIC_INTAKE_ADDRESS` (the Voulti receiving
-   wallet) and `NEXT_PUBLIC_TREASURY_ADDRESS` (the multi-sig). Set
+6. Publish `NEXT_PUBLIC_INTAKE_ADDRESS` (the Voulti receiving wallet). Set
    `ONCHAIN_CHAINS` to the networks actually enabled, and one
    `ONCHAIN_START_<CHAIN>` per chain — heights are **not** comparable across
    networks, so a single shared value would push the cursor past the head on
@@ -119,14 +126,15 @@ from the API: data that is never accepted cannot leak.
 
 ## On-chain reader
 
-`src/lib/onchain.ts` reads ERC-20 `Transfer` logs for both addresses straight
-from public RPCs, so the movements table does not depend on our database being
-honest. Two things about it are load-bearing:
+`src/lib/onchain.ts` reads ERC-20 `Transfer` logs for the published wallet
+straight from public RPCs, so the movements table does not depend on our
+database being honest. Two things about it are load-bearing:
 
-- **A sweep from intake to treasury is classified `internal` and excluded from
-  both totals.** It is the same money moving between two addresses we already
-  track; counting it as an outflow of one and an inflow of the other would
-  double every donation.
+- **Only the published wallet is tracked.** The reader still understands
+  transfers between two tracked addresses and marks them `internal`, from when
+  there was a treasury to sweep into. It no longer reads a second address from
+  the environment on purpose: with one published wallet, anything leaving it is
+  an outflow a donor should see, not an internal move to hide.
 - **`maxLogRange` per chain in `src/lib/chains.ts` was measured, not guessed**
   (2026-08-11). Celo's forno rejects 10k-block ranges outright and so does
   publicnode's BSC; a too-large value does not degrade gracefully, it fails

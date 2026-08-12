@@ -151,7 +151,7 @@ export const COPY = {
         },
         {
           title: "Their use is reported publicly",
-          body: "Onchain movements remain visible here. ReFi Colombia will publish public updates about how resources are used after they leave the onchain treasury.",
+          body: "Onchain movements remain visible here. ReFi Colombia will publish public updates about how resources are used after they leave the onchain wallet.",
         },
       ],
     },
@@ -172,7 +172,7 @@ export const COPY = {
       none: "Be the first",
       liveNote: "Updated automatically when a payment settles onchain.",
       unavailable:
-        "The live counter is still being connected. Every contribution is already recorded onchain and can be checked at the wallet addresses below.",
+        "The live counter is still being connected. Every contribution is already recorded onchain and can be checked at the wallet address below.",
     },
     donate: {
       title: "Make a contribution",
@@ -212,17 +212,14 @@ export const COPY = {
     manager: {
       title: "Who manages the donations?",
       body: "ReFi Colombia receives and manages the campaign funds. They are responsible for deciding the disbursements, connecting with organisations and affected people, and publishing public updates about how the resources are used.",
-      body2: "DonaOnchain does not control the treasury and cannot move the funds.",
+      body2: "DonaOnchain does not hold the funds and cannot move them.",
     },
     transparency: {
       title: "Verify it yourself",
-      lede: "You do not have to trust the totals shown by this site. The donation wallet, treasury wallet and onchain movements are public.",
-      intakeLabel: "Donation intake wallet",
+      lede: "You do not have to trust the totals shown by this site. The donation wallet and every movement in and out of it are public.",
+      intakeLabel: "Donation wallet",
       intakeNote:
-        "Donations first settle here. This wallet is controlled by a single key and is not intended for long-term storage; funds are moved to the multi-signature treasury.",
-      treasuryLabel: "Multi-signature treasury",
-      treasuryNote:
-        "This is where funds are held before disbursement. Moving funds requires approval from multiple signers.",
+        "Every donation settles here. The wallet belongs to ReFi Colombia — nobody running this site can move what arrives, and every movement in or out of it is public.",
       walletPending: "Being published — the address will appear here before donations open.",
       ledgerTitle: "Public donation ledger",
       ledgerEmpty:
@@ -236,9 +233,9 @@ export const COPY = {
       outflowsTitle: "Onchain wallet movements",
       outflowsLede: "Read from the blockchain, not from a number manually entered by us.",
       outflowsEmpty:
-        "No onchain movements yet. Once the addresses are published and the first donation settles, every transfer will appear here automatically.",
+        "No onchain movements yet. Once the wallet is published and the first donation settles, every transfer will appear here automatically.",
       outflowsUnavailable:
-        "Onchain tracking is not configured yet. It switches on as soon as the wallet addresses are published.",
+        "Onchain tracking is not configured yet. It switches on as soon as the wallet address is published.",
       colDirection: "Direction",
       inbound: "In",
       outbound: "Out",
@@ -253,7 +250,7 @@ export const COPY = {
         {
           title: "The money",
           items: [
-            { q: "Who receives and manages the money?", a: "ReFi Colombia. Donations settle into a wallet they control and they are responsible for deciding how the funds are distributed. DonaOnchain does not control the treasury and cannot move the money." },
+            { q: "Who receives and manages the money?", a: "ReFi Colombia. Donations settle into a wallet they control and they are responsible for deciding how the funds are distributed. DonaOnchain does not hold the funds and cannot move them." },
             { q: "Who decides how the funds are used?", a: "ReFi Colombia. We are intentionally not publishing fixed percentages in advance because needs can change during the emergency. ReFi Colombia will decide the disbursements and publish updates through its public channels." },
             { q: "What happens if something goes wrong after the donation settles?", a: "ReFi Colombia controls the funds. DonaOnchain cannot reverse or recover funds on a donor's behalf after settlement. The purpose of the public wallets and ledger is to make the movements visible rather than asking donors to trust our internal records." },
           ],
@@ -262,8 +259,7 @@ export const COPY = {
           title: "Verifying it",
           items: [
             { q: "How is this different from sending money to a bank account?", a: "With a traditional donation account, the public normally has to trust the total reported by the organiser. Here, the donation transactions and published wallet movements can be independently checked onchain. That does not prove how money is used after it is converted or spent offchain. ReFi Colombia is responsible for publishing updates about that part." },
-            { q: "What exactly can I verify onchain?", a: "You can verify the donation transaction, amount, transaction hash, receiving address and movements between the published wallets. The blockchain cannot by itself verify an offchain purchase or the final use of converted funds." },
-            { q: "Why are there two wallets?", a: "Donations first settle into an intake wallet so payments can work across the supported networks. That wallet is controlled by one key, so it is not intended for storage. Funds are moved to a multi-signature treasury where multiple signers are required to approve movements." },
+            { q: "What exactly can I verify onchain?", a: "You can verify the donation transaction, amount, transaction hash, receiving address and every movement of the published wallet. The blockchain cannot by itself verify an offchain purchase or the final use of converted funds." },
           ],
         },
         {
@@ -380,7 +376,7 @@ export const COPY = {
         },
         {
           title: "Su uso se reporta públicamente",
-          body: "Los movimientos onchain siguen visibles aquí. ReFi Colombia publicará actualizaciones sobre cómo se utilizan los recursos después de salir de la tesorería onchain.",
+          body: "Los movimientos onchain siguen visibles aquí. ReFi Colombia publicará actualizaciones sobre cómo se utilizan los recursos después de salir de la wallet onchain.",
         },
       ],
     },
@@ -401,7 +397,7 @@ export const COPY = {
       none: "Sé el primero",
       liveNote: "Se actualiza automáticamente cuando un pago se liquida onchain.",
       unavailable:
-        "El contador en vivo todavía se está conectando. Cada contribución ya queda registrada onchain y se puede verificar en las direcciones de abajo.",
+        "El contador en vivo todavía se está conectando. Cada contribución ya queda registrada onchain y se puede verificar en la dirección de abajo.",
     },
     donate: {
       title: "Haz una contribución",
@@ -441,17 +437,14 @@ export const COPY = {
     manager: {
       title: "¿Quién administra las donaciones?",
       body: "ReFi Colombia recibe y administra los recursos de la campaña. Ellos son responsables de decidir los desembolsos, conectarse con organizaciones y personas afectadas, y publicar actualizaciones sobre cómo se utilizan los recursos.",
-      body2: "DonaOnchain no controla la tesorería ni puede mover los fondos.",
+      body2: "DonaOnchain no custodia los fondos ni puede moverlos.",
     },
     transparency: {
       title: "Verifícalo tú mismo",
-      lede: "No tienes que confiar en los totales que muestra este sitio. La wallet de donaciones, la wallet de tesorería y los movimientos onchain son públicos.",
-      intakeLabel: "Wallet de entrada de donaciones",
+      lede: "No tienes que confiar en los totales que muestra este sitio. La wallet de donaciones y todos sus movimientos de entrada y salida son públicos.",
+      intakeLabel: "Wallet de donaciones",
       intakeNote:
-        "Las donaciones se liquidan primero aquí. Esta wallet está controlada por una sola llave y no está pensada para guardar fondos a largo plazo; los recursos se trasladan a la tesorería multifirma.",
-      treasuryLabel: "Tesorería multifirma",
-      treasuryNote:
-        "Aquí se custodian los fondos antes de los desembolsos. Mover recursos requiere la aprobación de varios firmantes.",
+        "Todas las donaciones se liquidan aquí. La wallet es de ReFi Colombia: nadie que opere este sitio puede mover lo que llega, y cada entrada y salida es pública.",
       walletPending:
         "Pendiente de publicación — la dirección aparecerá aquí antes de abrir las donaciones.",
       ledgerTitle: "Libro público de donaciones",
@@ -467,9 +460,9 @@ export const COPY = {
       outflowsLede:
         "Leídos desde la blockchain, no desde un número ingresado manualmente por nosotros.",
       outflowsEmpty:
-        "Aún no hay movimientos onchain. Cuando se publiquen las direcciones y se liquide la primera donación, cada transferencia aparecerá aquí automáticamente.",
+        "Aún no hay movimientos onchain. Cuando se publique la wallet y se liquide la primera donación, cada transferencia aparecerá aquí automáticamente.",
       outflowsUnavailable:
-        "El rastreo onchain todavía no está configurado. Se enciende apenas se publiquen las direcciones de las wallets.",
+        "El rastreo onchain todavía no está configurado. Se enciende apenas se publique la dirección de la wallet.",
       colDirection: "Dirección",
       inbound: "Entra",
       outbound: "Sale",
@@ -484,7 +477,7 @@ export const COPY = {
         {
           title: "El dinero",
           items: [
-            { q: "¿Quién recibe y administra el dinero?", a: "ReFi Colombia. Las donaciones se liquidan en una wallet que ellos controlan y son responsables de decidir cómo se distribuyen los recursos. DonaOnchain no controla la tesorería ni puede mover el dinero." },
+            { q: "¿Quién recibe y administra el dinero?", a: "ReFi Colombia. Las donaciones se liquidan en una wallet que ellos controlan y son responsables de decidir cómo se distribuyen los recursos. DonaOnchain no custodia los fondos ni puede moverlos." },
             { q: "¿Quién decide cómo se utilizan los recursos?", a: "ReFi Colombia. Intencionalmente no estamos publicando porcentajes fijos por adelantado porque las necesidades pueden cambiar durante la emergencia. ReFi Colombia decidirá los desembolsos y publicará actualizaciones a través de sus canales." },
             { q: "¿Qué pasa si algo sale mal después de que la donación se liquida?", a: "ReFi Colombia controla los recursos. DonaOnchain no puede reversar ni recuperar fondos en nombre de un donante después de la liquidación. El propósito de las wallets públicas y del libro de donaciones es hacer visibles los movimientos en lugar de pedirle a los donantes que confíen en nuestros registros internos." },
           ],
@@ -494,7 +487,6 @@ export const COPY = {
           items: [
             { q: "¿En qué se diferencia esto de enviar dinero a una cuenta bancaria?", a: "Con una cuenta de donaciones tradicional, normalmente el público tiene que confiar en el total reportado por el organizador. Aquí, las transacciones de las donaciones y los movimientos de las wallets publicadas se pueden verificar de forma independiente onchain. Eso no prueba cómo se utiliza el dinero después de convertirlo o gastarlo fuera de la cadena. ReFi Colombia es responsable de publicar actualizaciones sobre esa parte." },
             { q: "¿Qué puedo verificar exactamente onchain?", a: "Puedes verificar la transacción de la donación, el monto, el hash, la dirección que recibió los fondos y los movimientos entre las wallets publicadas. La blockchain por sí sola no puede verificar una compra fuera de la cadena ni el uso final de recursos ya convertidos." },
-            { q: "¿Por qué hay dos wallets?", a: "Las donaciones primero se liquidan en una wallet de entrada para que los pagos funcionen en las redes compatibles. Esa wallet está controlada por una sola llave, por lo que no está pensada para guardar los fondos. Los recursos se trasladan a una tesorería multifirma donde se requiere la aprobación de varios firmantes para moverlos." },
           ],
         },
         {

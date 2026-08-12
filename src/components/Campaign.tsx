@@ -37,7 +37,6 @@ export type CampaignProps = {
   donorCount: number;
   ledger: LedgerEntry[];
   intakeAddress: string | null;
-  treasuryAddress: string | null;
   onchainConfigured: boolean;
   movements: MovementEntry[];
   contactEmail: string;
@@ -105,16 +104,14 @@ export function Campaign(props: CampaignProps) {
   /** Index of the letter paragraph that quotes the casualty figures. */
   const FIGURES_PARAGRAPH = 1;
 
+  /* One wallet, not two. The intake/treasury split only existed to support
+     the claim that moving funds needed several signers; without that, a
+     second published address is noise a donor has to reconcile. */
   const wallets = [
     {
       label: t.transparency.intakeLabel,
       note: t.transparency.intakeNote,
       address: props.intakeAddress,
-    },
-    {
-      label: t.transparency.treasuryLabel,
-      note: t.transparency.treasuryNote,
-      address: props.treasuryAddress,
     },
   ];
 

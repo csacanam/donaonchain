@@ -99,15 +99,10 @@ export function certificatesEnabled(): boolean {
  * multi-signature contract: Voulti settles to one address across every network
  * the commerce enables, and a Safe deployed on one chain does not exist at the
  * same address on the others — funds paid on a chain where the contract is
- * absent can be stranded. The multi-sig is the sweep destination instead.
+ * absent can be stranded.
  */
 export function intakeAddress(): string | null {
   return process.env.NEXT_PUBLIC_INTAKE_ADDRESS?.trim() || null;
-}
-
-/** The multi-signature treasury the intake wallet is swept into. */
-export function treasuryAddress(): string | null {
-  return process.env.NEXT_PUBLIC_TREASURY_ADDRESS?.trim() || null;
 }
 
 export const SITE = {
