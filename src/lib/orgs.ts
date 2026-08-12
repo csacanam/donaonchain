@@ -97,12 +97,22 @@ export const SUPPORTERS: Org[] = [
   },
   {
     ...RECIPIENT,
-    // The file at /logos/reficolombia.png is unusable: 540x540, fully opaque,
-    // and every pixel between luminance 224 and 255 — the darkest one in the
-    // whole image is 239. The wordmark is drawn a hair off its own white
-    // background, so it renders as a blank pale square. Set `logo` once a file
-    // with real contrast (or a transparent background) exists; until then the
-    // typographic wordmark is the honest fallback.
+    // Recovered from the supplied file rather than used directly. The
+    // original — still at /logos/reficolombia.png — is 540x540, fully opaque,
+    // and drawn a hair off its own white background: every pixel sits between
+    // luminance 224 and 255, so on this page it rendered as a blank pale
+    // square. The lettering is real, just barely separated from the canvas, so
+    // the background was keyed out at that boundary and the wide margins
+    // cropped away. A proper transparent export from ReFi Colombia should
+    // replace this.
+    logo: "/logos/reficolombia-transparent.png",
+    logoBackground: "none",
+    // Stacked lockup, not a single-line wordmark: "ReFi" is 179px of the
+    // 234px crop and "COLOMBIA" the remaining band. Sized so the whole
+    // lockup lands near the other marks' overall height rather than setting
+    // its top line to their lettering height, which would leave the second
+    // line an illegible smear.
+    wordmarkRatio: 0.45,
     role: { en: "Receives the donations", es: "Recibe las donaciones" },
   },
   {
