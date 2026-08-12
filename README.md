@@ -1,8 +1,8 @@
 # DonaOnchain
 
-Crypto donations for earthquake relief in Cali, Colombia — the 7.4 quake of
+Crypto donations for earthquake relief across Colombia after the 7.4 quake of
 10 August 2026. Aimed at the international crypto community: stablecoins in,
-every donation published on-chain.
+every donation published onchain.
 
 **Funds are received by [ReFi Colombia](https://www.instagram.com/reficolombia)**,
 the Colombian node of the ReFi DAO network. Donations settle directly into
@@ -34,7 +34,7 @@ credentials degrade specific features rather than breaking the page:
 | Missing | Effect |
 |---|---|
 | `VOULTI_COMMERCE_ID` | Donation form shows an explicit "not live yet" notice and cannot be submitted. |
-| `UPSTASH_REDIS_*` | The live counter and ledger are hidden entirely. Donations still work. |
+| `KV_REST_API_*` (or `UPSTASH_REDIS_REST_*`) | The counter says so plainly instead of showing a total we cannot verify. Donations still work. The Vercel Marketplace injects the `KV_` names, which is why `Redis.fromEnv()` is not used. |
 | `VOULTI_WEBHOOK_SECRET` | Webhook rejects every delivery. Settlement is still recorded by the thank-you page's polling backstop. |
 | `HASHPROOF_*` | No certificates issued. Donations recorded as normal; certificates can be issued retroactively. |
 
@@ -69,7 +69,8 @@ app.voulti.com → Account → Networks.
 3. Copy the `commerce_id` from **Receive Payments → Developers** into
    `VOULTI_COMMERCE_ID`.
 4. Set the `confirmation_url` on that same page to
-   `https://donaonchain.com/api/webhooks/voulti`, generate a signing secret, and
+   `https://www.donaonchain.com/api/webhooks/voulti` — the apex 308-redirects to
+   `www`, so point it at the final host — generate a signing secret, and
    copy it into `VOULTI_WEBHOOK_SECRET`.
 5. Use **Test my webhook** on that page to confirm the endpoint answers. It
    fires with `invoice_id: 00000000-0000-0000-0000-000000000000`, which cannot
@@ -85,10 +86,12 @@ app.voulti.com → Account → Networks.
 
 ## Donor privacy
 
-Donors choose, per donation, between **Anonymous** (the default) and being
-listed by name. People and companies who want the visibility appear in the
-ledger with their name beside the amount; everyone else appears as *Anonymous*
-and their amount still counts.
+Donors choose, per donation, between being listed by name (the default) and
+**Anonymous**. Named is the default because a ledger with real names on it is
+what makes others want to be on it — and it is safe as a default only because
+the name field is required in that mode: nobody is published without typing a
+name next to the words "this will be public". Anonymous contributions still
+appear, with the amount, under *Anonymous*.
 
 The consent is stored as `showName` on the donation record, deliberately
 separate from `donorName`: a donor may supply a name only so a certificate can
@@ -100,7 +103,10 @@ reads as *no consent*, which is the safe direction when the answer is unknown.
 The API applies the same strictness: `body.showName === true` and nothing else.
 A string `"true"` does not grant consent.
 
-Emails are never published and never leave the server.
+**No email is collected at all.** An earlier version asked for one "to receive"
+the certificate and nothing ever sent it — the certificate appears on the
+thank-you page and in the ledger. The field was removed from the form *and*
+from the API: data that is never accepted cannot leak.
 
 ## On-chain reader
 
@@ -139,20 +145,21 @@ BSC's Binance-Peg USDC/USDT are **18 decimals** while every other chain here is
 
 ## Notes for whoever maintains this
 
-Campaign copy, disaster figures, sources and the allocation split all live in
-`src/lib/content.ts`. Update `FIGURES.asOf` whenever you touch a number — the
-site renders that timestamp next to the figures, so a stale number at least
-reads as a dated one.
+Campaign copy, disaster figures and sources live in `src/lib/content.ts`. The
+letter itself is written by Camilo — edit it only with him. Update
+`FIGURES.asOf` whenever you touch a number, and take every figure from ONE
+reporting round: an earlier version mixed rounds and briefly showed more injured
+in Cali than in the whole country.
 
-Organisations shown on the site live in `src/lib/orgs.ts`, split on purpose:
-`BUILT_WITH` states a verifiable fact about the stack and needs nobody's
-permission, while `RECIPIENT` and `SUPPORTERS` are endorsement claims. Every
-entry carries `confirmed`, and anything false is not rendered — flipping one to
+Organisations shown on the site live in `src/lib/orgs.ts`. `RECIPIENT` is the
+one that receives the money; `SUPPORTERS` is the row at the foot of the page.
+Every entry carries `confirmed`, and anything false is not rendered — flipping one to
 true asserts that a written yes exists. An unconfirmed name on a donation page
 is a claim donors act on.
 
-Nothing in `ALLOCATION` may carry `status: "confirmed"` until money has actually
-moved that way.
+There is deliberately no fixed allocation split. Needs change hour to hour in an
+emergency, and a published percentage we cannot enforce would be a promise made
+on ReFi Colombia's behalf.
 
 Three integration details caused most of the design here, and are easy to
 regress:
