@@ -345,7 +345,11 @@ export function Campaign(props: CampaignProps) {
             </div>
           )}
 
-          <div className="mt-8 grid gap-3 sm:grid-cols-2">
+          {/* Single column. This was two-up when there was a treasury card
+              beside the intake one; left at sm:grid-cols-2 it rendered one
+              card across half the width with an empty half beside it, which
+              reads as a missing card rather than a deliberate layout. */}
+          <div className="mt-8 grid gap-3">
             {wallets.map((w) => (
               <div key={w.label} className="rounded-2xl border border-line bg-surface p-5">
                 <p className="text-xs font-medium uppercase tracking-wider text-faint">
