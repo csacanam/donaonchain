@@ -59,7 +59,19 @@ export function Photos({ lang, credit }: { lang: Lang; credit: string }) {
               width={photo.width}
               height={photo.height}
               priority={i < 3}
-              sizes="(max-width: 640px) 50vw, 220px"
+              // Measured on a 1280px window: the first row of tiles starts
+              // 597px down a 786px viewport, so it is on screen at load and
+              // the first three are worth preloading.
+              //
+              // The desktop figure is 190px against tiles that measure 201px.
+              // Under-declaring by 11px is deliberate: at 201px and DPR 2 the
+              // browser asks for 402px and rounds up to the 640px candidate,
+              // which is 120 KB of rubble texture per tile. Declaring 190
+              // lands it on 384px — 1.9x instead of 2x on a thumbnail, which
+              // is invisible, for well under half the bytes.
+              sizes="(max-width: 640px) 50vw, 190px"
+              // See next.config.ts: 50 is for these thumbnails only.
+              quality={50}
               className="aspect-[3/4] h-auto w-full object-cover"
             />
           </button>
