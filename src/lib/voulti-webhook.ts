@@ -2,6 +2,7 @@ import { after, NextResponse } from "next/server";
 import { getInvoice, verifyWebhook, type VoultiWebhookEvent } from "@/lib/voulti";
 import {
   alreadyHandled,
+  claimCertificateAttempt,
   getDonation,
   markHandled,
   recordSettlement,
@@ -141,7 +142,10 @@ async function handleSettlement(invoiceId: string): Promise<void> {
   // Certificate issuance costs real money and is best-effort by design. It
   // returns null instead of throwing, so it can never strand a settled
   // donation, and it runs only after the money is confirmed in.
-  if (record.donorName) {
+  // Same claim the thank-you page takes. Whichever path gets here first
+  // issues; the other finds the claim taken and leaves it alone, so one
+  // donation can never mint two paid credentials.
+  if (record.donorName && (await claimCertificateAttempt(invoiceId))) {
     const credential = await issueDonationCertificate({
       donorName: record.donorName,
       amountUsd: record.amountUsd,

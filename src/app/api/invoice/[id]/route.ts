@@ -1,9 +1,15 @@
 import { NextResponse } from "next/server";
 import { getInvoice } from "@/lib/voulti";
-import { getDonation, recordSettlement, saveDonation, type DonationRecord } from "@/lib/store";
+import {
+  claimCertificateAttempt,
+  getDonation,
+  recordSettlement,
+  saveDonation,
+  type DonationRecord,
+} from "@/lib/store";
 import { issueDonationCertificate } from "@/lib/hashproof";
 import { rateLimit } from "@/lib/ratelimit";
-import { explorerUrl, networkLabel } from "@/lib/config";
+import { certificatesEnabled, explorerUrl, networkLabel } from "@/lib/config";
 import { refreshStats } from "@/lib/stats";
 
 /**
@@ -65,21 +71,34 @@ export async function GET(
 
   let certificateUrl = record.certificateUrl;
 
+  // A named donor is owed a certificate; whether this request or the webhook
+  // happened to be the one that recorded the settlement is an implementation
+  // detail they should never pay for.
+  const owedCertificate =
+    invoice.status === "Paid" &&
+    certificatesEnabled() &&
+    Boolean(record.donorName) &&
+    !certificateUrl;
+
   if (invoice.status === "Paid") {
-    const isNew = await recordSettlement(record);
-    if (isNew) {
-      refreshStats();
-      if (record.donorName && !certificateUrl) {
-        const credential = await issueDonationCertificate({
-          donorName: record.donorName,
-          amountUsd: record.amountUsd,
-          paidAt: record.paidAt,
-        });
-        if (credential) {
-          certificateUrl = credential.verification_url;
-          await saveDonation({ ...record, certificateUrl });
-          refreshStats();
-        }
+    if (await recordSettlement(record)) refreshStats();
+
+    // Deliberately NOT gated on having been the path that recorded the
+    // settlement. It used to be, and that lost certificates outright: the
+    // webhook records first, this request then sees `isNew === false`, skips
+    // issuance, and the webhook's own attempt is the only one that ever runs.
+    // If it fails, nothing retries, and the donation keeps a name with no
+    // credential for good.
+    if (owedCertificate && (await claimCertificateAttempt(id))) {
+      const credential = await issueDonationCertificate({
+        donorName: record.donorName!,
+        amountUsd: record.amountUsd,
+        paidAt: record.paidAt,
+      });
+      if (credential) {
+        certificateUrl = credential.verification_url;
+        await saveDonation({ ...record, certificateUrl });
+        refreshStats();
       }
     }
   } else if (existing && existing.status !== invoice.status) {
@@ -101,5 +120,9 @@ export async function GET(
     networkLabel: networkLabel(invoice.paid_network),
     txUrl: explorerUrl(invoice.paid_network, invoice.paid_tx_hash),
     certificateUrl,
+    // Lets the page keep waiting instead of settling on "no certificate".
+    // Issuance can finish a second or two after the payment does, and the
+    // page used to stop polling the moment the status read Paid.
+    certificatePending: owedCertificate && !certificateUrl,
   });
 }

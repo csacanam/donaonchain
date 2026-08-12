@@ -58,6 +58,7 @@ const KEYS = {
   totalUsd: "stats:total_usd",
   donorCount: "stats:donor_count",
   seen: (id: string, status: string) => `seen:${id}:${status}`,
+  certLock: (id: string) => `cert:lock:${id}`,
 };
 
 let client: Redis | null = null;
@@ -163,6 +164,31 @@ export async function alreadyHandled(invoiceId: string, status: string): Promise
   const r = redis();
   if (!r) return false;
   return (await r.exists(KEYS.seen(invoiceId, status))) === 1;
+}
+
+/**
+ * Reserves the right to attempt ONE certificate issuance for this invoice.
+ *
+ * Two paths can reach issuance for the same donation — the webhook and the
+ * thank-you page's poll — and issuance spends $0.10 and writes to a chain that
+ * cannot be edited afterwards. `SET NX` hands the attempt to exactly one of
+ * them.
+ *
+ * The TTL is the point: a lock that never expired would turn one failed
+ * attempt into a donation that can never get its certificate, and no lock at
+ * all would let a slow first attempt and a later poll both succeed and mint two
+ * credentials for one donation.
+ */
+export async function claimCertificateAttempt(
+  invoiceId: string,
+  seconds = 120,
+): Promise<boolean> {
+  const r = redis();
+  // Without Redis there is no stored donor name either, so nothing reaches
+  // issuance by this route anyway; refusing here would only mask that.
+  if (!r) return true;
+  const claimed = await r.set(KEYS.certLock(invoiceId), 1, { nx: true, ex: seconds });
+  return claimed === "OK";
 }
 
 /**

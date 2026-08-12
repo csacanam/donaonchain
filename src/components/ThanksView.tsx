@@ -29,6 +29,8 @@ type InvoiceView = {
   networkLabel: string;
   txUrl: string | null;
   certificateUrl: string | null;
+  /** The donor is named and owed a certificate that has not been issued yet. */
+  certificatePending?: boolean;
 };
 
 /**
@@ -63,8 +65,14 @@ export function ThanksView() {
         const data = (await res.json()) as InvoiceView;
         if (cancelled) return;
         setInvoice(data);
-        // Paid and Refunded are the only genuinely final states.
-        if (data.status === "Paid" || data.status === "Refunded") return;
+        // Paid and Refunded are the only genuinely final states — but a named
+        // donor's certificate is issued a moment after the payment settles,
+        // and stopping here left them looking at a settled donation with no
+        // certificate and nothing to indicate one was coming.
+        const waitingOnCertificate = data.status === "Paid" && data.certificatePending;
+        if ((data.status === "Paid" || data.status === "Refunded") && !waitingOnCertificate) {
+          return;
+        }
       } catch {
         if (cancelled) return;
       }
@@ -300,6 +308,12 @@ export function ThanksView() {
             >
               {copyState === "done" ? t.copied : t.copyLink}
             </button>
+          )}
+
+          {settled && !invoice?.certificateUrl && invoice?.certificatePending && (
+            <p className="flex h-12 items-center justify-center rounded-xl border border-dashed border-line px-6 text-center text-sm text-faint">
+              {t.certPending}
+            </p>
           )}
 
           {invoice?.certificateUrl && (
