@@ -4,6 +4,7 @@ import {
   INVOICE_TTL_MINUTES,
   VOULTI_API,
   VOULTI_CHECKOUT,
+  SITE,
   commerceId,
 } from "./config";
 import type { DonationStatus } from "./store";
@@ -63,15 +64,36 @@ export class VoultiError extends Error {
   }
 }
 
-async function readError(res: Response): Promise<string> {
-  // Failures do not use the { success, data } envelope — they are { error }.
+async function readError(res: Response): Promise<{ message: string; code?: string }> {
+  // Failures do not use the { success, data } envelope — they are { error },
+  // plus a machine-readable `code` on the return_url rejections.
   try {
-    const body = (await res.json()) as { error?: string };
-    return body.error ?? `Voulti returned ${res.status}`;
+    const body = (await res.json()) as { error?: string; code?: string };
+    return { message: body.error ?? `Voulti returned ${res.status}`, code: body.code };
   } catch {
-    return `Voulti returned ${res.status}`;
+    return { message: `Voulti returned ${res.status}` };
   }
 }
+
+/**
+ * Where the payer is sent once the invoice reaches a final status.
+ *
+ * `{invoice_id}` is substituted by Voulti. Without it the payer arrives with no
+ * way to tell which invoice they just paid — and any state we kept in their
+ * session is gone if they started on desktop and finished on their phone.
+ *
+ * The host must be on the commerce's own allowlist (Receive Payments →
+ * Developers → Return domains) or every invoice is rejected. That check exists
+ * because creating invoices needs no credentials and the commerce_id is public,
+ * so without it anyone could point a merchant's payers at a site of their
+ * choosing.
+ */
+function returnUrl(): string {
+  return `${SITE.url.replace(/\/$/, "")}/thanks?invoice={invoice_id}`;
+}
+
+/** Rejections that mean "the allowlist is not set up", not "bad request". */
+const RETURN_URL_CODES = ["return_url:no-allowlist", "return_url:host-not-allowed"];
 
 export async function createInvoice(input: CreateInvoiceInput): Promise<CreatedInvoice> {
   const id = commerceId();
@@ -81,23 +103,43 @@ export async function createInvoice(input: CreateInvoiceInput): Promise<CreatedI
 
   const expiresAt = new Date(Date.now() + INVOICE_TTL_MINUTES * 60_000).toISOString();
 
-  const res = await fetch(`${VOULTI_API}/invoices`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      commerce_id: id,
-      amount_fiat: input.amountUsd,
-      // Required, and chosen per invoice — there is no account-level default.
-      currency: DONATION_CURRENCY,
-      reference: input.reference.slice(0, 200),
-      description: input.description.slice(0, 300),
-      expires_at: expiresAt,
-    }),
-    cache: "no-store",
-  });
+  const post = (withReturnUrl: boolean) =>
+    fetch(`${VOULTI_API}/invoices`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        commerce_id: id,
+        amount_fiat: input.amountUsd,
+        // Required, and chosen per invoice — there is no account-level default.
+        currency: DONATION_CURRENCY,
+        reference: input.reference.slice(0, 200),
+        description: input.description.slice(0, 300),
+        expires_at: expiresAt,
+        ...(withReturnUrl ? { return_url: returnUrl() } : {}),
+      }),
+      cache: "no-store",
+    });
+
+  let res = await post(true);
 
   if (!res.ok) {
-    throw new VoultiError(await readError(res), res.status);
+    const err = await readError(res);
+    // The allowlist is edited by the merchant in their dashboard, so this app
+    // cannot fix it and must not break because of it. Retrying without the
+    // field keeps donations flowing on a live site; the redirect simply starts
+    // working the moment the domain is authorised, with nothing to redeploy.
+    if (err.code && RETURN_URL_CODES.includes(err.code)) {
+      console.warn(
+        `[voulti] return_url rejected (${err.code}) — add ${new URL(SITE.url).hostname} under Receive Payments → Developers → Return domains. Falling back to no redirect.`,
+      );
+      res = await post(false);
+      if (!res.ok) {
+        const retryErr = await readError(res);
+        throw new VoultiError(retryErr.message, res.status);
+      }
+    } else {
+      throw new VoultiError(err.message, res.status);
+    }
   }
 
   // POST wraps the invoice — the id lives at data.id, not id.
@@ -117,7 +159,7 @@ export async function getInvoice(invoiceId: string): Promise<VoultiInvoice | nul
   const res = await fetch(`${VOULTI_API}/invoices/${invoiceId}`, { cache: "no-store" });
 
   if (res.status === 404) return null;
-  if (!res.ok) throw new VoultiError(await readError(res), res.status);
+  if (!res.ok) throw new VoultiError((await readError(res)).message, res.status);
 
   // GET returns the invoice bare — there is no `data` field to unwrap.
   return (await res.json()) as VoultiInvoice;
