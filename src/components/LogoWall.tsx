@@ -33,7 +33,13 @@ export function LogoWall({
   return (
     <div>
       <p className="text-xs font-medium uppercase tracking-wider text-faint">{title}</p>
-      <div className="mt-3 flex flex-wrap items-center gap-x-8 gap-y-4">
+      {/* gap-x-4 rather than the roomier 8. Measured: the five cells are
+          547.7px against 624px of column, so 32px gaps overflowed by 35px and
+          dropped HashProof alone onto a second line. 16px gaps total 611.7 and
+          the row holds, with 12px to spare. It wraps rather than overflows, so
+          a wider mark later only costs a line — worth re-measuring when ReFi
+          Colombia's logo replaces their text. */}
+      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-4">
         {orgs.map((org) => (
           <a
             key={org.key}
@@ -50,11 +56,15 @@ export function LogoWall({
                  The chip stays fully opaque and the mark inside is what dims —
                  a translucent white chip just reads as grey and looks like a
                  rendering fault rather than a choice. */
+              /* Every cell is the same height, chip or not. Sizing each one
+                 to its own mark left the row visibly ragged — the marks are
+                 different shapes, and a chip that hugs each one turns that
+                 into uneven boxes. Fixed height, mark centred inside. */
               <span
                 className={
                   org.logoBackground === "light"
-                    ? "flex items-center rounded-md bg-white px-3 py-2"
-                    : "flex items-center"
+                    ? "flex h-11 items-center rounded-md bg-white px-3"
+                    : "flex h-11 items-center"
                 }
               >
                 <Image
@@ -70,7 +80,7 @@ export function LogoWall({
                 />
               </span>
             ) : (
-              <span className="text-base font-semibold tracking-tight text-muted transition-colors group-hover:text-accent">
+              <span className="flex h-11 items-center text-base font-semibold tracking-tight text-muted transition-colors group-hover:text-accent">
                 {org.name}
               </span>
             )}

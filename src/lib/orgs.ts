@@ -97,8 +97,12 @@ export const SUPPORTERS: Org[] = [
   },
   {
     ...RECIPIENT,
-    // No logo supplied yet, so the row shows the wordmark and links to their
-    // Instagram. Drop a file in /public/logos and set `logo` when one exists.
+    // The file at /logos/reficolombia.png is unusable: 540x540, fully opaque,
+    // and every pixel between luminance 224 and 255 — the darkest one in the
+    // whole image is 239. The wordmark is drawn a hair off its own white
+    // background, so it renders as a blank pale square. Set `logo` once a file
+    // with real contrast (or a transparent background) exists; until then the
+    // typographic wordmark is the honest fallback.
     role: { en: "Receives the donations", es: "Recibe las donaciones" },
   },
   {
