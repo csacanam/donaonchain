@@ -285,28 +285,38 @@ export const COPY = {
       ],
     },
     thanks: {
-      title: "Your contribution is now onchain",
+      title: "Your contribution has arrived 🇨🇴",
       checking: "Confirming your payment onchain…",
-      paid: "Thank you. Your contribution just settled into ReFi Colombia's wallet, and the hash below is the public proof of it — nobody, including me, can edit or remove it. From Cali, genuinely: thank you.",
+      paid: "Thank you. Your contribution reached ReFi Colombia's wallet and is now publicly recorded onchain.",
+      paidProof: "The transaction below is the proof: no one can edit or delete it.",
+      paidClosing: "From Cali, thank you for standing with Colombia.",
       pending:
         "We haven't seen your payment settle yet. If you have just paid, this can take a moment — keep this page open.",
       expired:
         "This payment link expired before a payment arrived. Nothing was charged. You can start a new contribution any time.",
       refunded:
         "Your payment arrived after the link expired, so it was automatically returned to your wallet. Nothing was collected. Please start a new contribution if you would still like to give.",
-      share: "Share DonaOnchain",
-      shareLead:
-        "The fastest way to help beyond your contribution is to tell people. One post reaches wallets I never could.",
+      amountLabel: "Amount",
+      networkLabel: "Network",
+      receivedLabel: "Received",
+      txLabel: "Transaction",
+      shareTitle: "Help this reach further",
+      shareLead: "Your contribution already matters. Now you can help more people join.",
+      shareLead2:
+        "Sharing DonaOnchain can take this initiative to people and communities I could never reach on my own.",
+      shareOnX: "Share on X",
+      shareOnWhatsApp: "Share on WhatsApp",
+      shareOnTelegram: "Share on Telegram",
       copyLink: "Copy link",
       copied: "Copied",
+      // The campaign URL is appended by each target, so it is deliberately not
+      // written into this sentence — X and Telegram take it as its own field
+      // and would otherwise show it twice.
       shareCopy:
-        "I contributed to earthquake relief in Colombia through DonaOnchain. Donations are publicly verifiable onchain and the funds are managed by ReFi Colombia.",
-      shareCopied: "Link and message copied",
+        "Today I joined the onchain community supporting Colombia after the earthquake. 🇨🇴\n\nIf you want to help too:",
       certificateCta: "View my certificate",
       certPending: "Your certificate is being issued and will appear here in a moment.",
       backHome: "Back to the campaign",
-      txLabel: "Transaction",
-      amountLabel: "Amount",
     },
     footer: {
       built: "DonaOnchain — a community effort for Colombia.",
@@ -507,28 +517,35 @@ export const COPY = {
       ],
     },
     thanks: {
-      title: "Tu contribución ya está onchain",
+      title: "Tu contribución ya llegó 🇨🇴",
       checking: "Confirmando tu pago onchain…",
-      paid: "Gracias. Tu contribución acaba de liquidarse en la wallet de ReFi Colombia, y el hash de abajo es su prueba pública — nadie, ni yo, puede editarlo ni borrarlo. Desde Cali, de verdad: gracias.",
+      paid: "Gracias. Tu contribución llegó a la wallet de ReFi Colombia y quedó registrada públicamente onchain.",
+      paidProof: "La transacción de abajo es la prueba: nadie puede editarla ni borrarla.",
+      paidClosing: "Desde Cali, gracias por estar con Colombia.",
       pending:
         "Todavía no vemos tu pago liquidado. Si acabas de pagar, puede tardar un momento — deja esta página abierta.",
       expired:
         "Este enlace de pago expiró antes de que llegara un pago. No se cobró nada. Puedes iniciar una nueva contribución cuando quieras.",
       refunded:
         "Tu pago llegó después de que el enlace expirara, así que se devolvió automáticamente a tu wallet. No se recibió nada. Inicia una nueva contribución si aún quieres aportar.",
-      share: "Compartir DonaOnchain",
-      shareLead:
-        "La forma más rápida de ayudar más allá de tu contribución es contarlo. Un post llega a wallets a las que yo nunca llegaría.",
+      amountLabel: "Monto",
+      networkLabel: "Red",
+      receivedLabel: "Recibido",
+      txLabel: "Transacción",
+      shareTitle: "Ayuda a que esto llegue más lejos",
+      shareLead: "Tu contribución ya cuenta. Ahora puedes ayudar a que más personas se sumen.",
+      shareLead2:
+        "Compartir DonaOnchain puede llevar esta iniciativa a personas y comunidades a las que yo nunca llegaría.",
+      shareOnX: "Compartir en X",
+      shareOnWhatsApp: "Compartir por WhatsApp",
+      shareOnTelegram: "Compartir en Telegram",
       copyLink: "Copiar enlace",
       copied: "Copiado",
       shareCopy:
-        "Contribuí a la ayuda por el terremoto en Colombia a través de DonaOnchain. Las donaciones son públicamente verificables onchain y los recursos son administrados por ReFi Colombia.",
-      shareCopied: "Enlace y mensaje copiados",
+        "Hoy me sumé a la comunidad onchain que está apoyando a Colombia después del terremoto. 🇨🇴\n\nSi tú también quieres ayudar:",
       certificateCta: "Ver mi certificado",
       certPending: "Tu certificado se está emitiendo y aparecerá aquí en un momento.",
       backHome: "Volver a la campaña",
-      txLabel: "Transacción",
-      amountLabel: "Monto",
     },
     footer: {
       built: "DonaOnchain — un esfuerzo de comunidad por Colombia.",

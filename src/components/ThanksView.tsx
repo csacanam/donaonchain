@@ -95,15 +95,15 @@ export function ThanksView() {
 
   const targets = [
     {
-      label: "X",
+      label: t.shareOnX,
       href: `https://x.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`,
     },
     {
-      label: "WhatsApp",
+      label: t.shareOnWhatsApp,
       href: `https://wa.me/?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}`,
     },
     {
-      label: "Telegram",
+      label: t.shareOnTelegram,
       href: `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`,
     },
   ];
@@ -148,13 +148,17 @@ export function ThanksView() {
         </div>
       </div>
 
-      <p
-        role="status"
-        aria-live="polite"
-        className={`mt-4 text-base leading-relaxed ${settled ? "text-settled" : "text-muted"}`}
-      >
-        <LinkedText>{message}</LinkedText>
-      </p>
+      <div role="status" aria-live="polite" className="mt-4 space-y-3 text-base leading-relaxed">
+        <p className={settled ? "text-fg" : "text-muted"}>
+          <LinkedText>{message}</LinkedText>
+        </p>
+        {settled && (
+          <>
+            <p className="text-muted">{t.paidProof}</p>
+            <p className="font-medium text-settled">{t.paidClosing}</p>
+          </>
+        )}
+      </div>
 
       {invoice && (
         <dl className="mt-6 space-y-3 border-t border-line-soft pt-5 text-sm">
@@ -168,11 +172,21 @@ export function ThanksView() {
             </dd>
           </div>
 
-          {/* paid_amount is what actually settled onchain, recorded at
-              settlement — the only figure that stays true over time. */}
+          {/* The network is its own row rather than the label of the amount
+              below it: "Celo" is a fact about the payment, not a name for the
+              figure beside it. */}
+          {settled && invoice.networkLabel !== "—" && (
+            <div className="flex justify-between gap-4">
+              <dt className="text-faint">{t.networkLabel}</dt>
+              <dd className="font-medium">{invoice.networkLabel}</dd>
+            </div>
+          )}
+
+          {/* What actually settled onchain, recorded at settlement — the only
+              figure that stays true as exchange rates move. */}
           {settled && invoice.paidAmount !== null && (
             <div className="flex justify-between gap-4">
-              <dt className="text-faint">{invoice.networkLabel}</dt>
+              <dt className="text-faint">{t.receivedLabel}</dt>
               <dd className="font-mono tnum">
                 {invoice.paidAmount} {invoice.token}
               </dd>
@@ -201,14 +215,16 @@ export function ThanksView() {
         <div className="mt-7 space-y-3">
           {/* Sharing is the primary post-donation action for everyone; the
               certificate is secondary and only exists for some donors. */}
+          <h2 className="text-lg font-semibold tracking-tight">{t.shareTitle}</h2>
           <p className="text-sm leading-relaxed text-muted">{t.shareLead}</p>
+          <p className="text-sm leading-relaxed text-muted">{t.shareLead2}</p>
 
           {/* Explicit destinations rather than one "share" button. The button
               relied on navigator.share, which does not exist on most desktop
               browsers, so it silently fell back to a clipboard write that could
               itself fail — and the catch swallowed both. These are plain links:
               they cannot fail quietly. */}
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid gap-2 sm:grid-cols-3">
             {targets.map((target) => (
               <a
                 key={target.label}
