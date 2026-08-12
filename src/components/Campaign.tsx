@@ -481,6 +481,30 @@ export function Campaign(props: CampaignProps) {
             {/* One fold per theme rather than twelve questions in a row.
                 Flat, the list read as an undifferentiated wall; grouped, a
                 reader goes straight to the part they actually doubt. */}
+            {/* First fold, and deliberately not one question among twelve.
+                Whether the organisation holding the money has ever handled
+                money before is the doubt a stranger actually has, and the
+                links are the answer — every claim here is checkable on a
+                site ReFi Colombia publishes, not on this one. */}
+            <Detail title={t.faq.trackRecord.title}>
+              <p><LinkedText>{t.faq.trackRecord.body}</LinkedText></p>
+              <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm">
+                {t.faq.trackRecord.links.map((link) => (
+                  <li key={link.url}>
+                    <a
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-accent underline decoration-accent-dim/60 underline-offset-4 transition-colors hover:decoration-accent"
+                    >
+                      {link.label} →
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-3 text-sm text-faint">{t.faq.trackRecord.note}</p>
+            </Detail>
+
             {t.faq.groups.map((group) => (
               <Detail key={group.title} title={group.title}>
                 <dl className="space-y-4">

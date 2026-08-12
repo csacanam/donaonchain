@@ -111,7 +111,7 @@ export const COPY = {
         "I was fortunate that my loved ones are still alive and that we only suffered material damage, but this is not the reality for many people in my country.",
         "There are still many people missing beneath the rubble, many family members desperate for answers, people who from one day to the next were left without a home, and many other situations that arise when a tragedy like this happens.",
         "That is why I want to turn to the community that, over the last few years, has meant so much in my life — a community where I have grown, learned, shared knowledge, and dedicated so many hours of my life. A community I have always identified with because of its values and what it seeks to contribute to humanity.",
-        "That is why I decided to build an onchain donation channel so that anyone who wants to contribute to this cause can do so. For this, I joined forces with ReFi Colombia, a node of ReFi DAO, a decentralized community focused on the regeneration of the planet, so they can distribute all these donations among foundations, organizations, and the people who need them most.",
+        "That is why I decided to build an onchain donation channel so that anyone who wants to contribute to this cause can do so. For this, I joined forces with ReFi Colombia, a node of ReFi DAO, a decentralized community focused on the regeneration of the planet, so they can distribute all these donations among foundations, organizations, and the people who need them most. They have already moved more than COP $20 million — around US$5,000 — in stablecoins onchain across the country: weekly payments to more than 60 low-income families, and grants that funded mangrove restoration in Cartagena and reforestation in the Amazon.",
         "If the crypto community has contributed to your life, this is the moment for you to do the same for a cause that is truly worth it.",
       ],
       photoCredit: "Buildings I walked past in Cali. I took these photos myself.",
@@ -246,6 +246,20 @@ export const COPY = {
     },
     faq: {
       title: "Questions",
+      trackRecord: {
+        title: "What ReFi Colombia has done before",
+        body:
+          "ReFi Colombia has distributed more than COP $20 million \u2014 around US$5,000 \u2014 in stablecoins, directly onchain, to projects across Colombia. That includes a national subsidy programme paying more than 60 low-income families every week on Celo, mini-grants that funded mangrove restoration in Cartagena and native-species reforestation in the Colombian Amazon with ReFi Cartagena and ReFi Amazonas, and community programmes that brought hundreds of Colombians onchain for the first time, with 145 POAPs minted across their events.",
+        note: "These are their own records, published by them. Nothing here asks you to take our word for it.",
+        links: [
+          { label: "Subsidy dashboard (Dune)", url: "https://dune.com/reficolombia/refi-colombia" },
+          { label: "Subsidy programme", url: "https://subsidios.reficolombia.org" },
+          { label: "Mini-grant round (KarmaGAP)", url: "https://app.karmahq.xyz/refi-colombia-community/programs/1021/apply" },
+          { label: "POAP collection (145 drops)", url: "https://collections.poap.xyz/organizations/refi-colombia/1120" },
+          { label: "Events calendar (Luma)", url: "https://luma.com/reficolombiapublic" },
+          { label: "Giveth", url: "https://giveth.io/project/refi-colombia" },
+        ],
+      },
       groups: [
         {
           title: "The money",
@@ -340,7 +354,7 @@ export const COPY = {
         "Tuve la fortuna de que mis seres queridos sigan vivos y de que solamente hayamos tenido daños materiales, pero esta no es la realidad de muchas personas en mi país.",
         "Aún hay muchas personas desaparecidas bajo los escombros, muchos familiares desesperados por tener respuestas, personas que de un día para otro quedaron sin hogar y muchas otras situaciones que surgen cuando ocurre una tragedia como esta.",
         "Por eso quiero acudir a la comunidad que en los últimos años ha significado tanto para mi vida, una comunidad en la que he crecido, aprendido, compartido conocimiento y a la que he dedicado muchísimas horas de mi vida. Una comunidad con la que siempre me he identificado por sus valores y por lo que busca aportar a la humanidad.",
-        "Por eso decidí construir un canal de donaciones onchain para que todas las personas que quieran contribuir a esta causa puedan hacerlo. Para esto me uní a ReFi Colombia, un nodo de ReFi DAO, una comunidad descentralizada enfocada en la regeneración del planeta, para que distribuyan todas estas donaciones entre fundaciones, entidades y personas que más lo necesitan.",
+        "Por eso decidí construir un canal de donaciones onchain para que todas las personas que quieran contribuir a esta causa puedan hacerlo. Para esto me uní a ReFi Colombia, un nodo de ReFi DAO, una comunidad descentralizada enfocada en la regeneración del planeta, para que distribuyan todas estas donaciones entre fundaciones, entidades y personas que más lo necesitan. Ellos ya han movido más de COP $20 millones —unos US$5.000— en stablecoins onchain por todo el país: pagos semanales a más de 60 familias de bajos ingresos, y grants que financiaron la restauración de manglares en Cartagena y reforestación en la Amazonía.",
         "Si la comunidad cripto ha contribuido a tu vida, este es el momento de que tú también lo hagas por una causa que realmente vale la pena.",
       ],
       photoCredit: "Edificios con los que me encontré en Cali. Estas fotos las tomé yo.",
@@ -473,6 +487,20 @@ export const COPY = {
     },
     faq: {
       title: "Preguntas",
+      trackRecord: {
+        title: "Lo que ReFi Colombia ha hecho antes",
+        body:
+          "ReFi Colombia ha distribuido m\u00e1s de COP $20 millones \u2014alrededor de US$5.000\u2014 en stablecoins, directamente onchain, a proyectos en todo el pa\u00eds. Incluye un programa nacional de subsidios que paga cada semana a m\u00e1s de 60 familias de bajos ingresos en Celo, mini-grants que financiaron la restauraci\u00f3n de manglares en Cartagena y la reforestaci\u00f3n con especies nativas en la Amazon\u00eda colombiana junto a ReFi Cartagena y ReFi Amazonas, y programas comunitarios que llevaron por primera vez a cientos de colombianos a Web3, con 145 POAPs emitidos en sus eventos.",
+        note: "Son sus propios registros, publicados por ellos. Nada de esto depende de que nos creas a nosotros.",
+        links: [
+          { label: "Panel de subsidios (Dune)", url: "https://dune.com/reficolombia/refi-colombia" },
+          { label: "Programa de subsidios", url: "https://subsidios.reficolombia.org" },
+          { label: "Ronda de mini-grants (KarmaGAP)", url: "https://app.karmahq.xyz/refi-colombia-community/programs/1021/apply" },
+          { label: "Colecci\u00f3n POAP (145 drops)", url: "https://collections.poap.xyz/organizations/refi-colombia/1120" },
+          { label: "Calendario de eventos (Luma)", url: "https://luma.com/reficolombiapublic" },
+          { label: "Giveth", url: "https://giveth.io/project/refi-colombia" },
+        ],
+      },
       groups: [
         {
           title: "El dinero",
