@@ -285,7 +285,7 @@ export const COPY = {
       ],
     },
     thanks: {
-      title: "Your contribution has arrived 🇨🇴",
+      title: "Your contribution has arrived 🇨🇴",
       checking: "Confirming your payment onchain…",
       paid: "Thank you. Your contribution reached ReFi Colombia's wallet and is now publicly recorded onchain.",
       paidProof: "The transaction below is the proof: no one can edit or delete it.",
@@ -304,11 +304,7 @@ export const COPY = {
       shareLead: "Your contribution already matters. Now you can help more people join.",
       shareLead2:
         "Sharing DonaOnchain can take this initiative to people and communities I could never reach on my own.",
-      shareOnX: "Share on X",
-      shareOnWhatsApp: "Share on WhatsApp",
-      shareOnTelegram: "Share on Telegram",
-      copyLink: "Copy link",
-      copied: "Copied",
+      shareOn: "Share on {platform}",
       // The campaign URL is appended by each target, so it is deliberately not
       // written into this sentence — X and Telegram take it as its own field
       // and would otherwise show it twice.
@@ -517,7 +513,7 @@ export const COPY = {
       ],
     },
     thanks: {
-      title: "Tu contribución ya llegó 🇨🇴",
+      title: "Tu contribución ya llegó 🇨🇴",
       checking: "Confirmando tu pago onchain…",
       paid: "Gracias. Tu contribución llegó a la wallet de ReFi Colombia y quedó registrada públicamente onchain.",
       paidProof: "La transacción de abajo es la prueba: nadie puede editarla ni borrarla.",
@@ -536,11 +532,7 @@ export const COPY = {
       shareLead: "Tu contribución ya cuenta. Ahora puedes ayudar a que más personas se sumen.",
       shareLead2:
         "Compartir DonaOnchain puede llevar esta iniciativa a personas y comunidades a las que yo nunca llegaría.",
-      shareOnX: "Compartir en X",
-      shareOnWhatsApp: "Compartir por WhatsApp",
-      shareOnTelegram: "Compartir en Telegram",
-      copyLink: "Copiar enlace",
-      copied: "Copiado",
+      shareOn: "Compartir en {platform}",
       shareCopy:
         "Hoy me sumé a la comunidad onchain que está apoyando a Colombia después del terremoto. 🇨🇴\n\nSi tú también quieres ayudar:",
       certificateCta: "Ver mi certificado",
