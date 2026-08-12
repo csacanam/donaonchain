@@ -106,6 +106,14 @@ export const SUPPORTERS: Org[] = [
     name: "Celo",
     url: "https://celo.org",
     confirmed: true,
+    // Black logotype on transparency — invisible on this background without
+    // the chip. The glyphs run edge to edge with no padding, so by the file
+    // this would be 1; it is set lower because Celo's logotype is wide and
+    // thin, and at the same measured height it reads smaller than the others.
+    // Tuned against the rendered row, not computed.
+    logo: "/logos/celo.png",
+    logoBackground: "light",
+    wordmarkRatio: 0.82,
     role: { en: "Ecosystem", es: "Ecosistema" },
   },
   {
