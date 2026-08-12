@@ -1,4 +1,5 @@
 import { certificatesEnabled } from "./config";
+import { MAX_DONOR_NAME } from "./limits";
 
 /**
  * Donation certificates via HashProof.
@@ -18,13 +19,6 @@ import { certificatesEnabled } from "./config";
  */
 
 const ISSUE_URL = "https://api.hashproof.dev/issueCredential";
-
-/**
- * The name box fits two lines at the configured font size. Roughly 30
- * characters set one line, so this keeps the longest name to two and stops a
- * third line spilling over the artwork's printed text.
- */
-const MAX_NAME_CHARS = 56;
 
 /**
  * Which chain the issuance fee is paid from. The wallet must hold USDC there.
@@ -162,7 +156,7 @@ export async function issueDonationCertificate(
   if (!certificatesEnabled()) return null;
   if (!input.donorName.trim()) return null;
 
-  const name = input.donorName.trim().slice(0, MAX_NAME_CHARS);
+  const name = input.donorName.trim().slice(0, MAX_DONOR_NAME);
   const date = input.paidAt
     ? new Date(input.paidAt).toLocaleDateString("en-US", {
         year: "numeric",

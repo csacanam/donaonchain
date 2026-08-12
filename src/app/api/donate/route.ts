@@ -4,6 +4,7 @@ import { donationsEnabled } from "@/lib/config";
 import { createInvoice, VoultiError } from "@/lib/voulti";
 import { saveDonation } from "@/lib/store";
 import { rateLimit } from "@/lib/ratelimit";
+import { MAX_DONOR_NAME } from "@/lib/limits";
 
 /**
  * Creates a donation invoice and hands back a checkout URL.
@@ -53,7 +54,7 @@ export async function POST(req: Request) {
 
   const donorName =
     typeof body.name === "string" && body.name.trim()
-      ? body.name.trim().slice(0, 120)
+      ? body.name.trim().slice(0, MAX_DONOR_NAME)
       : null;
   // No email is collected. Nothing in this project sends one, and accepting a
   // personal detail we never use would only create data to leak.

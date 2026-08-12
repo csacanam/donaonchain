@@ -4,6 +4,7 @@ import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import { COPY, PRESET_AMOUNTS, type Lang } from "@/lib/content";
 import { LinkedText } from "./LinkedText";
+import { MAX_DONOR_NAME } from "@/lib/limits";
 
 type Props = {
   lang: Lang;
@@ -235,6 +236,7 @@ export function DonateForm({ lang, enabled, certificatesEnabled }: Props) {
               id={`${ids}-name`}
               type="text"
               autoComplete="name"
+              maxLength={MAX_DONOR_NAME}
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={t.namePlaceholder}
