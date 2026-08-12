@@ -305,6 +305,9 @@ export const COPY = {
       shareLead2:
         "Sharing DonaOnchain can take this initiative to people and communities I could never reach on my own.",
       shareOn: "Share on {platform}",
+      copyLink: "Or copy the link",
+      copied: "Link copied",
+      copyManual: "Copy this link:",
       // The campaign URL is appended by each target, so it is deliberately not
       // written into this sentence — X and Telegram take it as its own field
       // and would otherwise show it twice.
@@ -533,6 +536,9 @@ export const COPY = {
       shareLead2:
         "Compartir DonaOnchain puede llevar esta iniciativa a personas y comunidades a las que yo nunca llegaría.",
       shareOn: "Compartir en {platform}",
+      copyLink: "O copia el enlace",
+      copied: "Enlace copiado",
+      copyManual: "Copia este enlace:",
       shareCopy:
         "Hoy me sumé a la comunidad onchain que está apoyando a Colombia después del terremoto. 🇨🇴\n\nSi tú también quieres ayudar:",
       certificateCta: "Ver mi certificado",

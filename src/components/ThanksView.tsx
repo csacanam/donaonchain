@@ -48,6 +48,7 @@ export function ThanksView() {
 
   const [lang, setLang] = useLang();
   const [invoice, setInvoice] = useState<InvoiceView | null>(null);
+  const [copyState, setCopyState] = useState<"idle" | "done" | "failed">("idle");
   const attempts = useRef(0);
 
   useEffect(() => {
@@ -133,6 +134,31 @@ export function ThanksView() {
       href: `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`,
     },
   ];
+
+  /**
+   * The three buttons cover where most of this will travel, but not Discord,
+   * Farcaster or Signal — which is where a good part of the crypto community
+   * actually talks. This is deliberately a text link rather than a fourth
+   * button: it is a fallback, and a full-width control gave it the same weight
+   * as the platforms and pushed the closing action off the screen.
+   */
+  async function copyLink() {
+    try {
+      // The clipboard is denied outright in insecure contexts, and in some
+      // in-app browsers (and whenever the document is not focused) the write
+      // never settles at all — neither resolving nor rejecting. Racing it
+      // against a timeout means a stalled write still ends somewhere the donor
+      // can act on, instead of leaving a control that appears to do nothing.
+      await Promise.race([
+        navigator.clipboard.writeText(`${shareText} ${shareUrl}`),
+        new Promise((_, reject) => setTimeout(reject, 1200)),
+      ]);
+      setCopyState("done");
+      setTimeout(() => setCopyState("idle"), 2500);
+    } catch {
+      setCopyState("failed");
+    }
+  }
 
 
   return (
@@ -260,6 +286,21 @@ export function ThanksView() {
               </a>
             ))}
           </div>
+
+          {copyState === "failed" ? (
+            <p className="pt-1 text-center text-xs text-faint">
+              {t.copyManual}{" "}
+              <span className="select-all font-mono text-muted">{shareUrl}</span>
+            </p>
+          ) : (
+            <button
+              type="button"
+              onClick={copyLink}
+              className="mx-auto flex h-9 items-center justify-center rounded-lg px-3 text-xs font-medium text-faint transition-colors hover:text-accent"
+            >
+              {copyState === "done" ? t.copied : t.copyLink}
+            </button>
+          )}
 
           {invoice?.certificateUrl && (
             <a
