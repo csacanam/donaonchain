@@ -323,8 +323,11 @@ export const COPY = {
       // and would otherwise show it twice.
       shareCopy:
         "Today I joined the onchain community supporting Colombia after the earthquake. 🇨🇴\n\nIf you want to help too:",
+      certTitle: "Your certificate",
+      certLead:
+        "Issued in your name, registered on Celo and linked to the transaction above. Anyone can verify it; nobody can alter it.",
       certificateCta: "View my certificate",
-      certPending: "Your certificate is being issued and will appear here in a moment.",
+      certPending: "Being issued — it will appear here in a moment.",
       backHome: "Back to the campaign",
     },
     footer: {
@@ -561,8 +564,11 @@ export const COPY = {
       copyManual: "Copia este enlace:",
       shareCopy:
         "Hoy me sumé a la comunidad onchain que está apoyando a Colombia después del terremoto. 🇨🇴\n\nSi tú también quieres ayudar:",
+      certTitle: "Tu certificado",
+      certLead:
+        "Emitido a tu nombre, registrado en Celo y vinculado a la transacción de arriba. Cualquiera puede verificarlo; nadie puede alterarlo.",
       certificateCta: "Ver mi certificado",
-      certPending: "Tu certificado se está emitiendo y aparecerá aquí en un momento.",
+      certPending: "Se está emitiendo — aparecerá aquí en un momento.",
       backHome: "Volver a la campaña",
     },
     footer: {

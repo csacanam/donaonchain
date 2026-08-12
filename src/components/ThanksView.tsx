@@ -259,6 +259,34 @@ export function ThanksView() {
         </dl>
       )}
 
+      {/* Its own card, directly under the transaction it belongs to.
+          It used to be an outline button at the very bottom, below the share
+          row — the most personal thing the page produces, styled as an
+          afterthought and placed where a reader has already stopped. */}
+      {settled && (invoice?.certificateUrl || invoice?.certificatePending) && (
+        <section className="mt-6 rounded-2xl border border-accent-dim/40 bg-accent/[0.06] p-5">
+          <h2 className="text-base font-semibold tracking-tight">{t.certTitle}</h2>
+          <p className="mt-1 text-sm leading-relaxed text-muted">{t.certLead}</p>
+
+          {invoice?.certificateUrl ? (
+            <a
+              href={invoice.certificateUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 flex h-12 w-full items-center justify-center rounded-xl bg-accent px-6 text-sm font-semibold text-ink transition-opacity hover:opacity-90"
+            >
+              {t.certificateCta}
+            </a>
+          ) : (
+            /* Same height and position as the button it becomes, so the card
+               does not jump when issuance finishes. */
+            <p className="mt-4 flex h-12 w-full items-center justify-center rounded-xl border border-dashed border-accent-dim/50 px-6 text-center text-sm text-faint">
+              {t.certPending}
+            </p>
+          )}
+        </section>
+      )}
+
       {settled && (
         <div className="mt-6 space-y-3">
           {/* Sharing is the primary post-donation action for everyone; the
@@ -310,22 +338,6 @@ export function ThanksView() {
             </button>
           )}
 
-          {settled && !invoice?.certificateUrl && invoice?.certificatePending && (
-            <p className="flex h-12 items-center justify-center rounded-xl border border-dashed border-line px-6 text-center text-sm text-faint">
-              {t.certPending}
-            </p>
-          )}
-
-          {invoice?.certificateUrl && (
-            <a
-              href={invoice.certificateUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex h-12 w-full items-center justify-center rounded-xl border border-line bg-surface-2 px-6 text-sm font-semibold transition-colors hover:border-accent-dim"
-            >
-              {t.certificateCta}
-            </a>
-          )}
         </div>
       )}
 
