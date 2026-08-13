@@ -230,10 +230,11 @@ export const COPY = {
       colNetwork: "Network",
       colTx: "Transaction",
       viewTx: "View",
-      outflowsTitle: "Onchain wallet movements",
-      outflowsLede: "Read from the blockchain, not from a number manually entered by us.",
+      outflowsTitle: "Movements of the published wallet",
+      outflowsLede:
+        "Read straight from the blockchain, not from a number we typed in. Donations are paid into Voulti\u2019s settlement contract first, so they appear here when ReFi Colombia withdraws them into this wallet.",
       outflowsEmpty:
-        "No onchain movements yet. Once the wallet is published and the first donation settles, every transfer will appear here automatically.",
+        "Nothing has moved through this wallet yet. Donations that have already settled are credited to ReFi Colombia inside Voulti\u2019s contract and are waiting to be withdrawn \u2014 each withdrawal will show up here on its own, with no help from us.",
       outflowsUnavailable:
         "Onchain tracking is not configured yet. It switches on as soon as the wallet address is published.",
       colDirection: "Direction",
@@ -473,11 +474,11 @@ export const COPY = {
       colNetwork: "Red",
       colTx: "Transacción",
       viewTx: "Ver",
-      outflowsTitle: "Movimientos de las wallets onchain",
+      outflowsTitle: "Movimientos de la wallet publicada",
       outflowsLede:
-        "Leídos desde la blockchain, no desde un número ingresado manualmente por nosotros.",
+        "Leídos directamente de la blockchain, no de un número que escribimos nosotros. Las donaciones se pagan primero al contrato de liquidación de Voulti, así que aparecen aquí cuando ReFi Colombia las retira hacia esta wallet.",
       outflowsEmpty:
-        "Aún no hay movimientos onchain. Cuando se publique la wallet y se liquide la primera donación, cada transferencia aparecerá aquí automáticamente.",
+        "Todavía no ha pasado nada por esta wallet. Las donaciones ya liquidadas están acreditadas a ReFi Colombia dentro del contrato de Voulti, a la espera de ser retiradas \u2014 cada retiro aparecerá aquí solo, sin que nosotros hagamos nada.",
       outflowsUnavailable:
         "El rastreo onchain todavía no está configurado. Se enciende apenas se publique la dirección de la wallet.",
       colDirection: "Dirección",
