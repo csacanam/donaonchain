@@ -4,9 +4,9 @@ Crypto donations for earthquake relief across Colombia after the 7.4 quake of
 10 August 2026. Aimed at the international crypto community: stablecoins in,
 every donation published onchain.
 
-**Funds are received by [ReFi Colombia](https://www.instagram.com/reficolombia)**,
-the Colombian node of the ReFi DAO network. Donations settle directly into
-their wallet; nobody operating this site holds or can move the money.
+**Funds are received by [ReFi Colombia](https://reficolombia.org)**, the
+Colombian node of the ReFi DAO network. Donations settle directly into their
+wallet; nobody operating this site holds or can move the money.
 
 Next.js 16 (App Router) · Voulti for payments · Upstash Redis for the counter ·
 HashProof for donation certificates.
@@ -18,7 +18,33 @@ HashProof for donation certificates.
   each transaction on the relevant block explorer.
 - States plainly where the money is meant to go, and which partnerships are
   confirmed versus still being negotiated.
-- Optionally issues a verifiable donation certificate per donor.
+- Issues a verifiable donation certificate to donors **who ask for one**.
+
+## Page order, and why it is this way
+
+Top to bottom: a short hero, the raised total, the donation form, the public
+ledger, *who is behind this*, *verify it yourself*, then the folded detail and
+the FAQ.
+
+This is deliberate and it is not the original shape. The site used to open with
+Camilo's letter and put the form beneath it, which read as a personal essay that
+happened to accept money. A donation page has to let someone give in the first
+screen. **The letter was not cut** — it sits under *who is behind this* with its
+first three paragraphs open and the rest, including all six photographs, behind
+a fold. The signature stays outside that fold on purpose: a reader who never
+expands it still sees a named person, with public profiles, putting their name
+to the appeal.
+
+*Verify it yourself* — the wallet and its on-chain movements — was promoted out
+of the folded detail block for the same reason. It is this page's whole
+argument, and a claim a donor has to go looking for is a claim they will not
+check.
+
+Every claim is now made in exactly one place. `funds` and `manager` were deleted
+from `src/lib/content.ts` rather than moved: between them and the FAQ, "ReFi
+Colombia decides how the money is used" was stated five times. If you find
+yourself adding a sentence that already exists elsewhere on the page, delete the
+older one instead of both surviving.
 
 ## Running locally
 
@@ -121,8 +147,37 @@ A string `"true"` does not grant consent.
 
 **No email is collected at all.** An earlier version asked for one "to receive"
 the certificate and nothing ever sent it — the certificate appears on the
-thank-you page and in the ledger. The field was removed from the form *and*
-from the API: data that is never accepted cannot leak.
+thank-you page. The field was removed from the form *and* from the API: data
+that is never accepted cannot leak.
+
+## Certificate consent
+
+`wantsCertificate` is a second, independent flag on the donation record, and it
+is the only thing that authorises an issuance.
+
+It exists because the form asked the question and then dropped the answer. The
+radio was collected in `DonateForm` and never put in the request body, the API
+never stored it, and both issuance paths tested `record.donorName` alone — so
+every named donor got a credential minted in their name and $0.10 spent on it,
+including the ones who had just clicked *No, thanks*. Certificates can be
+revoked afterwards, never edited.
+
+Three rules keep it fixed:
+
+- **The API demands `body.wantsCertificate === true`**, exactly like `showName`.
+- **Both issuance sites gate on it** — `handleSettlement()` in
+  `src/lib/voulti-webhook.ts` and `owedCertificate` in
+  `src/app/api/invoice/[id]/route.ts`. Adding a third caller means adding a
+  third check.
+- **Every read is `=== true`, never `?? false`.** Records written before the
+  field existed carry `undefined`, and unknown must mean *not requested*: a
+  donor who wanted one and missed out can be issued one retroactively, whereas a
+  credential minted for someone who declined cannot be un-minted.
+
+The form pre-selects *yes*, which is a product decision rather than a technical
+one — the question is only ever shown to a donor who already chose to appear
+publicly by name, and the certificate is the thing they can share. Flip
+`useState(true)` in `DonateForm` if that should be opt-in instead.
 
 ## On-chain reader
 
@@ -168,8 +223,21 @@ letter itself is written by Camilo — edit it only with him. Update
 reporting round: an earlier version mixed rounds and briefly showed more injured
 in Cali than in the whole country.
 
-Organisations shown on the site live in `src/lib/orgs.ts`. `RECIPIENT` is the
-one that receives the money; `SUPPORTERS` is the row at the foot of the page.
+`FIGURES` currently holds UNGRD's balance of 12 August 2026, 07:30 — 239 dead,
+3,755 injured, 140 buildings collapsed. Note that the last of those went **down**
+from the previous round's 152, because later bulletins separate collapsed
+buildings from the 9,215 homes recorded as destroyed. Do not restore the higher
+number from the older round to make the trend look tidier; that is precisely the
+mixing this file warns about. **A stale casualty count is worse than none** — if
+these stop being maintained, delete them before deleting anything else.
+
+Organisations shown on the site live in `src/lib/orgs.ts`. Every mention of ReFi
+Colombia — `RECIPIENT`, `INLINE_LINKS`, the logo row — points at
+`RECIPIENT_URL`, which is their own site rather than their Instagram: a donor
+following the name of the organisation that will hold the money should land on
+the page that states what it is and links its own dashboards, not on a social
+profile they will judge by its last post. `RECIPIENT` is the org that receives
+the money; `SUPPORTERS` is the row at the foot of the page.
 Every entry carries `confirmed`, and anything false is not rendered — flipping one to
 true asserts that a written yes exists. An unconfirmed name on a donation page
 is a claim donors act on.

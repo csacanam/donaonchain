@@ -58,6 +58,9 @@ export async function GET(
     amountUsd: invoice.amount_fiat,
     donorName: existing?.donorName ?? null,
     showName: existing?.showName ?? false,
+    // `=== true`, not `?? false`: a record written before this field existed
+    // carries no answer, and no answer must not buy anybody a credential.
+    wantsCertificate: existing?.wantsCertificate === true,
     donorEmail: existing?.donorEmail ?? null,
     status: invoice.status,
     createdAt: existing?.createdAt ?? new Date().toISOString(),
@@ -71,12 +74,17 @@ export async function GET(
 
   let certificateUrl = record.certificateUrl;
 
-  // A named donor is owed a certificate; whether this request or the webhook
-  // happened to be the one that recorded the settlement is an implementation
-  // detail they should never pay for.
+  // A donor who ASKED for a certificate is owed one; whether this request or
+  // the webhook happened to be the one that recorded the settlement is an
+  // implementation detail they should never pay for.
+  //
+  // The request is what makes it owed, not the name. This used to test the
+  // name alone, so a donor who picked "no, thanks" got one anyway — and the
+  // thank-you page then sat polling for a certificate they had declined.
   const owedCertificate =
     invoice.status === "Paid" &&
     certificatesEnabled() &&
+    record.wantsCertificate &&
     Boolean(record.donorName) &&
     !certificateUrl;
 

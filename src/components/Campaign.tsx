@@ -2,7 +2,11 @@
 
 import { AUTHOR } from "@/lib/author";
 import { COPY, FIGURES, SOURCES, type Lang } from "@/lib/content";
-import { RECIPIENT, SUPPORTERS, visible } from "@/lib/orgs";
+// RECIPIENT is deliberately no longer imported: the removed "who manages the
+// donations" fold was the only place that linked it by hand, and every other
+// mention of ReFi Colombia in body copy is already turned into a link by
+// LinkedText, via INLINE_LINKS.
+import { SUPPORTERS, visible } from "@/lib/orgs";
 import { useLang } from "@/lib/useLang";
 import { DonateForm } from "./DonateForm";
 import { LinkedText } from "./LinkedText";
@@ -10,6 +14,12 @@ import { LogoWall } from "./LogoWall";
 import { Photos } from "./Photos";
 import { Signature } from "./Signature";
 
+/**
+ * Carries no `certificateUrl`. One was plumbed all the way from the server
+ * into this component and never rendered — the certificate found its own card
+ * on the thank-you page instead. A field the ledger does not draw is a field
+ * that quietly says which donors hold a credential, for no benefit.
+ */
 export type LedgerEntry = {
   amountUsd: number;
   donorName: string | null;
@@ -17,7 +27,6 @@ export type LedgerEntry = {
   token: string | null;
   networkLabel: string;
   txUrl: string | null;
-  certificateUrl: string | null;
 };
 
 export type MovementEntry = {
@@ -104,6 +113,18 @@ export function Campaign(props: CampaignProps) {
   /** Index of the letter paragraph that quotes the casualty figures. */
   const FIGURES_PARAGRAPH = 1;
 
+  /**
+   * How much of the letter is open before the fold.
+   *
+   * Three paragraphs: who is writing, what the figures are, and that he lived
+   * it. That is the whole credibility claim a donor needs at this point in the
+   * page, and it happens to end just after the sourced numbers — so the fold
+   * never cuts a paragraph away from the citation underneath it.
+   */
+  const LETTER_PREVIEW = 3;
+  const letterPreview = t.letter.paragraphs.slice(0, LETTER_PREVIEW);
+  const letterRest = t.letter.paragraphs.slice(LETTER_PREVIEW);
+
   /* One wallet, not two. The intake/treasury split only existed to support
      the claim that moving funds needed several signers; without that, a
      second published address is noise a donor has to reconcile. */
@@ -114,6 +135,86 @@ export function Campaign(props: CampaignProps) {
       address: props.intakeAddress,
     },
   ];
+
+  /**
+   * One letter paragraph, plus the sourcing line when it is the paragraph that
+   * quotes the figures.
+   *
+   * Shared by the open preview and the folded remainder so the fold can move
+   * without the citation drifting away from the numbers it supports. `index`
+   * is the paragraph's position in the WHOLE letter, not in the slice.
+   */
+  const letterParagraph = (paragraph: string, index: number) => (
+    <div key={index}>
+      <p className={index === 0 ? "" : "mt-5"}>
+        <LinkedText>{fillFigures(paragraph)}</LinkedText>
+      </p>
+
+      {/* Sourcing sits with the claim it supports, not folded away in a
+          section of its own — a reader who doubts the number looks here, not
+          three screens down. */}
+      {index === FIGURES_PARAGRAPH && (
+        <p className="mt-2 text-sm leading-relaxed text-faint">
+          {t.figures.disclaimer} {t.figures.asOf}{" "}
+          {/* No full stop after the time: Spanish formats it as "7:00 p. m.",
+              which already ends in one. */}
+          <time dateTime={FIGURES.asOf}>{dateTime(FIGURES.asOf, lang)}</time>
+          {" · "}
+          {t.figures.sources}:{" "}
+          {SOURCES.map((source, n) => (
+            <span key={source.url}>
+              {n > 0 && ", "}
+              <a
+                href={source.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline decoration-line underline-offset-4 hover:text-accent"
+              >
+                {source.label}
+              </a>
+            </span>
+          ))}
+          .
+        </p>
+      )}
+    </div>
+  );
+
+  /** The raised / contributions pair, or an honest note about why it is absent. */
+  const statsBlock = props.statsAvailable ? (
+    <>
+      <div className="grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2">
+        <div className="bg-surface p-6">
+          <p className="text-xs font-medium uppercase tracking-wider text-faint">
+            {t.stats.raised}
+          </p>
+          <p className="mt-1.5 text-4xl font-semibold tnum text-accent">
+            {usd(props.totalUsd, lang)}
+          </p>
+        </div>
+        <div className="bg-surface p-6">
+          <p className="text-xs font-medium uppercase tracking-wider text-faint">
+            {t.stats.donors}
+          </p>
+          <p className="mt-1.5 text-4xl font-semibold tnum">
+            {props.donorCount > 0 ? (
+              num(props.donorCount, lang)
+            ) : (
+              <span className="text-lg font-normal text-faint">{t.stats.none}</span>
+            )}
+          </p>
+        </div>
+      </div>
+      <p className="mt-2.5 text-xs text-faint">{t.stats.liveNote}</p>
+    </>
+  ) : (
+    /* Says why the number is missing instead of hiding the block. Showing $0
+       here would be a claim we cannot support: with the counter disconnected
+       we do not know the total, and "we don't know" is not "nothing". */
+    <p className="rounded-2xl border border-dashed border-line bg-surface/50 p-5 text-sm text-muted">
+      {t.stats.unavailable}
+    </p>
+  );
 
   return (
     <>
@@ -153,131 +254,47 @@ export function Campaign(props: CampaignProps) {
         </div>
       </header>
 
-      {/* One narrow column throughout. A letter has a measure; a landing page
-          has sections, and this is meant to read as the former. */}
+      {/* One narrow column throughout. The letter has a measure, and the rest
+          of the page keeps it so the two do not read as different sites. */}
       <main id="top" className="mx-auto w-full max-w-2xl flex-1 px-4 sm:px-6">
-        {/* -------------------------------------------------------- Letter */}
-        <section className="pt-12 sm:pt-20">
+        {/* ---------------------------------------------------------- Hero */}
+        {/* Short on purpose. This page is a donation page first: a stranger
+            gets what happened, who ends up with the money and why the total
+            is checkable, and then immediately the form. The account of the
+            day is still here in full, under "who is behind this" — it stopped
+            being the first thing a donor has to read before they can give. */}
+        <section className="pt-10 sm:pt-14">
           <p className="text-xs font-medium uppercase tracking-wider text-accent">
             {t.hero.eyebrow}
           </p>
           <h1 className="letter mt-4 text-balance text-[1.75rem] font-medium leading-[1.28] tracking-tight text-fg sm:text-[2.25rem]">
             {t.hero.title}
           </h1>
+          <p className="mt-5 text-pretty text-base leading-relaxed text-muted">
+            <LinkedText>{t.hero.lede}</LinkedText>
+          </p>
+        </section>
 
-          {/* Slightly larger and looser than UI text: this is meant to be read
-              start to finish, not scanned. */}
-          <div className="letter mt-7 text-pretty text-[1.125rem] leading-[1.8] text-muted sm:text-[1.1875rem]">
-            {t.letter.paragraphs.map((paragraph, i) => (
-              <div key={i}>
-                <p className={i === 0 ? "" : "mt-5"}><LinkedText>{fillFigures(paragraph)}</LinkedText></p>
-
-                {/* Sourcing sits with the claim it supports, not folded away
-                    in a section of its own — a reader who doubts the number
-                    looks here, not three screens down. */}
-                {i === FIGURES_PARAGRAPH && (
-                  <p className="mt-2 text-sm leading-relaxed text-faint">
-                    {t.figures.disclaimer} {t.figures.asOf}{" "}
-                    {/* No full stop after the time: Spanish formats it as
-                        "7:00 p. m.", which already ends in one. */}
-                    <time dateTime={FIGURES.asOf}>{dateTime(FIGURES.asOf, lang)}</time>
-                    {" · "}
-                    {t.figures.sources}:{" "}
-                    {SOURCES.map((source, n) => (
-                      <span key={source.url}>
-                        {n > 0 && ", "}
-                        <a
-                          href={source.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="underline decoration-line underline-offset-4 hover:text-accent"
-                        >
-                          {source.label}
-                        </a>
-                      </span>
-                    ))}
-                    .
-                  </p>
-                )}
-
-                {/* The photographs sit where the letter describes what
-                    happened, not in a gallery of their own. They are the
-                    evidence that the person writing was actually there. */}
-                {i === t.letter.photosAfter && (
-                  <>
-                    <Photos lang={lang} credit={t.letter.photoCredit} />
-                    <p className="mt-6">
-                      <a
-                        href={AUTHOR.thread}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-accent underline decoration-accent-dim/60 underline-offset-4 transition-colors hover:decoration-accent"
-                      >
-                        {t.letter.threadLink} →
-                      </a>
-                    </p>
-                  </>
-                )}
-              </div>
-            ))}
-
-            {/* Signed inside the letter, not in a section of its own: the
-                point is that a person wrote this, and a detached "about the
-                author" block would undo that. */}
-            <Signature lang={lang} />
+        {/* ---------------------------------------- Raised, then the form */}
+        {/* The counter sits ABOVE the form, not below it: what other people
+            have already given is the argument for giving, so it should be
+            read before the amount buttons rather than after. */}
+        <section id="donate" className="scroll-mt-20 pt-8">
+          {statsBlock}
+          <div className="mt-4">
+            <DonateForm
+              lang={lang}
+              enabled={props.donationsEnabled}
+              certificatesEnabled={props.certificatesEnabled}
+            />
           </div>
         </section>
 
-        {/* -------------------------------------------------------- Donate */}
-        <section id="donate" className="scroll-mt-20 py-10">
-          <DonateForm
-            lang={lang}
-            enabled={props.donationsEnabled}
-            certificatesEnabled={props.certificatesEnabled}
-          />
-        </section>
-
-        {/* ------------------------------- Total raised and who contributed */}
-        <section id="transparency" className="scroll-mt-20 pb-10">
-          {props.statsAvailable ? (
-            <>
-              <div className="grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2">
-                <div className="bg-surface p-6">
-                  <p className="text-xs font-medium uppercase tracking-wider text-faint">
-                    {t.stats.raised}
-                  </p>
-                  <p className="mt-1.5 text-4xl font-semibold tnum text-accent">
-                    {usd(props.totalUsd, lang)}
-                  </p>
-                </div>
-                <div className="bg-surface p-6">
-                  <p className="text-xs font-medium uppercase tracking-wider text-faint">
-                    {t.stats.donors}
-                  </p>
-                  <p className="mt-1.5 text-4xl font-semibold tnum">
-                    {props.donorCount > 0 ? (
-                      num(props.donorCount, lang)
-                    ) : (
-                      <span className="text-lg font-normal text-faint">{t.stats.none}</span>
-                    )}
-                  </p>
-                </div>
-              </div>
-              <p className="mt-2.5 text-xs text-faint">{t.stats.liveNote}</p>
-            </>
-          ) : (
-            /* Says why the number is missing instead of hiding the block.
-               Showing $0 here would be a claim we cannot support: with the
-               counter disconnected we do not know the total, and "we don't
-               know" is not the same as "nothing". */
-            <p className="rounded-2xl border border-dashed border-line bg-surface/50 p-5 text-sm text-muted">
-              {t.stats.unavailable}
-            </p>
-          )}
-
+        {/* -------------------------------------------------------- Ledger */}
+        <section className="pt-10">
           {/* The contributions list is public proof, so it stays on the page
               rather than folded away with the technical detail. */}
-          <h2 className="mt-8 text-lg font-semibold tracking-tight">
+          <h2 className="text-lg font-semibold tracking-tight">
             {t.transparency.ledgerTitle}
           </h2>
           {props.ledger.length === 0 ? (
@@ -345,11 +362,81 @@ export function Campaign(props: CampaignProps) {
             </div>
           )}
 
+        </section>
+
+        {/* ------------------------------------------- Who is behind this */}
+        {/* The letter, moved below the form. It is still the thing that makes
+            a stranger believe a real person is asking, which is why it is a
+            named section on the page and not a fold in the detail block. */}
+        <section id="organizer" className="scroll-mt-20 pt-12">
+          <h2 className="text-lg font-semibold tracking-tight">{t.organizer.title}</h2>
+
+          {/* Slightly larger and looser than UI text: this is meant to be read
+              start to finish, not scanned. */}
+          <div className="letter mt-5 text-pretty text-[1.125rem] leading-[1.8] text-muted sm:text-[1.1875rem]">
+            {letterPreview.map((paragraph, i) => letterParagraph(paragraph, i))}
+
+            {/* Nothing is cut — the rest of the account, the photographs and
+                the link to the thread all live one click away. The photographs
+                open the fold rather than sitting in the preview: six images
+                would make a "collapsed" section longer than the letter it is
+                meant to shorten. */}
+            {letterRest.length > 0 && (
+              <details className="group mt-5">
+                <summary className="flex cursor-pointer list-none items-center gap-2 text-base font-medium text-accent transition-opacity hover:opacity-80">
+                  <span className="group-open:hidden">{t.letter.readMore}</span>
+                  <span className="hidden group-open:inline">{t.letter.readLess}</span>
+                  <span
+                    aria-hidden
+                    className="text-xl leading-none transition-transform group-open:rotate-45"
+                  >
+                    +
+                  </span>
+                </summary>
+
+                <div className="mt-5">
+                  <Photos lang={lang} credit={t.letter.photoCredit} />
+                  <p className="mt-6">
+                    <a
+                      href={AUTHOR.thread}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-accent underline decoration-accent-dim/60 underline-offset-4 transition-colors hover:decoration-accent"
+                    >
+                      {t.letter.threadLink} →
+                    </a>
+                  </p>
+                  <div className="mt-5">
+                    {letterRest.map((paragraph, i) =>
+                      letterParagraph(paragraph, i + LETTER_PREVIEW),
+                    )}
+                  </div>
+                </div>
+              </details>
+            )}
+
+            {/* Signed outside the fold on purpose: a reader who never opens
+                the rest still sees that a named person, with public profiles
+                anyone can check, put their name to this. */}
+            <Signature lang={lang} />
+          </div>
+        </section>
+
+        {/* -------------------------------------------------- Transparency */}
+        {/* Promoted out of the detail folds. "Verify it yourself" is the whole
+            argument of this page; a claim a donor has to go looking for is a
+            claim they will not check. */}
+        <section id="transparency" className="scroll-mt-20 pt-12">
+          <h2 className="text-lg font-semibold tracking-tight">{t.transparency.title}</h2>
+          <p className="mt-2 text-sm leading-relaxed text-muted">
+            <LinkedText>{t.transparency.lede}</LinkedText>
+          </p>
+
           {/* Single column. This was two-up when there was a treasury card
               beside the intake one; left at sm:grid-cols-2 it rendered one
               card across half the width with an empty half beside it, which
               reads as a missing card rather than a deliberate layout. */}
-          <div className="mt-8 grid gap-3">
+          <div className="mt-4 grid gap-3">
             {wallets.map((w) => (
               <div key={w.label} className="rounded-2xl border border-line bg-surface p-5">
                 <p className="text-xs font-medium uppercase tracking-wider text-faint">
@@ -360,9 +447,83 @@ export function Campaign(props: CampaignProps) {
                 ) : (
                   <p className="mt-2 text-sm text-muted">{t.transparency.walletPending}</p>
                 )}
+                <p className="mt-3 text-sm leading-relaxed text-muted">
+                  <LinkedText>{w.note}</LinkedText>
+                </p>
               </div>
             ))}
           </div>
+
+          <h3 className="mt-8 text-sm font-medium uppercase tracking-wider text-faint">
+            {t.transparency.outflowsTitle}
+          </h3>
+          <p className="mt-1.5 text-sm text-muted">{t.transparency.outflowsLede}</p>
+          {!props.onchainConfigured ? (
+            <p className="mt-3 rounded-2xl border border-dashed border-line bg-surface/50 p-5 text-sm text-muted">
+              {t.transparency.outflowsUnavailable}
+            </p>
+          ) : props.movements.length === 0 ? (
+            <p className="mt-3 rounded-2xl border border-dashed border-line bg-surface/50 p-5 text-sm text-muted">
+              {t.transparency.outflowsEmpty}
+            </p>
+          ) : (
+            <div className="mt-3 overflow-x-auto rounded-2xl border border-line">
+              <table className="w-full min-w-[30rem] border-collapse text-xs">
+                <thead>
+                  <tr className="bg-surface-2 text-left uppercase tracking-wider text-faint">
+                    <th scope="col" className="px-3 py-2 font-medium">
+                      {t.transparency.colDirection}
+                    </th>
+                    <th scope="col" className="px-3 py-2 font-medium">
+                      {t.transparency.colAmount}
+                    </th>
+                    <th scope="col" className="px-3 py-2 font-medium">
+                      {t.transparency.colNetwork}
+                    </th>
+                    <th scope="col" className="px-3 py-2 font-medium">
+                      {t.transparency.colTx}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {props.movements.map((m, i) => (
+                    <tr key={`${m.txUrl}-${i}`} className="border-t border-line bg-surface">
+                      <td className="whitespace-nowrap px-3 py-2">
+                        {m.direction === "internal" ? (
+                          <span className="text-faint">
+                            {t.transparency.inbound} → {t.transparency.outbound}
+                          </span>
+                        ) : (
+                          <span
+                            className={m.direction === "in" ? "text-settled" : "text-accent"}
+                          >
+                            {m.direction === "in"
+                              ? t.transparency.inbound
+                              : t.transparency.outbound}
+                          </span>
+                        )}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-2 font-semibold tnum text-fg">
+                        {num(m.amount, lang)}{" "}
+                        <span className="font-normal text-faint">{m.symbol}</span>
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-2">{m.chainLabel}</td>
+                      <td className="whitespace-nowrap px-3 py-2">
+                        <a
+                          href={m.txUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-settled underline underline-offset-4"
+                        >
+                          {t.transparency.viewTx}
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </section>
 
         {/* ------------------------------------------------ Folded detail */}
@@ -392,91 +553,12 @@ export function Campaign(props: CampaignProps) {
               </ol>
             </Detail>
 
-            <Detail title={t.manager.title}>
-              <a
-                href={RECIPIENT.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-semibold text-accent underline decoration-accent-dim/50 underline-offset-4"
-              >
-                {RECIPIENT.name}
-              </a>
-              <p className="mt-2"><LinkedText>{t.manager.body}</LinkedText></p>
-              <p className="mt-3 font-medium text-fg">{t.funds.title}</p>
-              <p className="mt-1"><LinkedText>{t.funds.lede}</LinkedText></p>
-              <p className="mt-3"><LinkedText>{t.funds.reporting}</LinkedText></p>
-            </Detail>
-
-            <Detail title={t.transparency.title}>
-              {wallets.map((w) => (
-                <p key={w.label} className="mb-3">
-                  <span className="font-medium text-fg">{w.label}.</span>{" "}
-                  <LinkedText>{w.note}</LinkedText>
-                </p>
-              ))}
-
-              {/* The donation ledger itself lives above, on the page proper —
-                  it is proof, not fine print. Only the wallet-level movements
-                  stay folded here. */}
-              <p className="mt-4 font-medium text-fg">{t.transparency.outflowsTitle}</p>
-              <p className="mt-1">{t.transparency.outflowsLede}</p>
-              {!props.onchainConfigured ? (
-                <p className="mt-2">{t.transparency.outflowsUnavailable}</p>
-              ) : props.movements.length === 0 ? (
-                <p className="mt-2">{t.transparency.outflowsEmpty}</p>
-              ) : (
-                <div className="mt-2 overflow-x-auto rounded-xl border border-line">
-                  <table className="w-full min-w-[30rem] border-collapse text-xs">
-                    <thead>
-                      <tr className="bg-surface-2 text-left uppercase tracking-wider text-faint">
-                        <th className="px-3 py-2 font-medium">{t.transparency.colDirection}</th>
-                        <th className="px-3 py-2 font-medium">{t.transparency.colAmount}</th>
-                        <th className="px-3 py-2 font-medium">{t.transparency.colNetwork}</th>
-                        <th className="px-3 py-2 font-medium">{t.transparency.colTx}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {props.movements.map((m, i) => (
-                        <tr key={`${m.txUrl}-${i}`} className="border-t border-line">
-                          <td className="whitespace-nowrap px-3 py-2">
-                            {m.direction === "internal" ? (
-                              <span className="text-faint">
-                                {t.transparency.inbound} → {t.transparency.outbound}
-                              </span>
-                            ) : (
-                              <span
-                                className={
-                                  m.direction === "in" ? "text-settled" : "text-accent"
-                                }
-                              >
-                                {m.direction === "in"
-                                  ? t.transparency.inbound
-                                  : t.transparency.outbound}
-                              </span>
-                            )}
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-2 font-semibold tnum text-fg">
-                            {num(m.amount, lang)}{" "}
-                            <span className="font-normal text-faint">{m.symbol}</span>
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-2">{m.chainLabel}</td>
-                          <td className="whitespace-nowrap px-3 py-2">
-                            <a
-                              href={m.txUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-settled underline underline-offset-4"
-                            >
-                              {t.transparency.viewTx}
-                            </a>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </Detail>
+            {/* The "who manages the donations" and "verify it yourself" folds
+                used to sit here. The first repeated, three times over, what
+                faq.groups[0] now says once; the second hid the wallet and its
+                movements behind a click, and they are the page's whole
+                argument, so they were promoted into a section of their own
+                above. */}
 
             {/* One fold per theme rather than twelve questions in a row.
                 Flat, the list read as an undifferentiated wall; grouped, a

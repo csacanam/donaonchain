@@ -34,13 +34,27 @@ export const EVENT = {
  * before deleting anything else: a stale casualty count is worse than none.
  */
 export const FIGURES = {
-  asOf: "2026-08-11T18:00:00-05:00",
-  deaths: 181,
-  injured: 1246,
-  structuresCollapsed: 152,
+  // UNGRD's national balance as reported on 12 August 2026 at 7:30 a.m.
+  //
+  // ALL THREE COME FROM THAT ONE BULLETIN. Note that `structuresCollapsed`
+  // went DOWN from the previous round (152 → 140): the earlier count was
+  // preliminary and later bulletins separate collapsed buildings from the
+  // 9,215 homes recorded as destroyed. Do not "fix" it by keeping the higher
+  // number from an older round — that is exactly the mixing this file warns
+  // about, and the reason a version of this page once showed more injured in
+  // Cali than in the whole country.
+  asOf: "2026-08-12T07:30:00-05:00",
+  deaths: 239,
+  injured: 3755,
+  structuresCollapsed: 140,
 } as const;
 
 export const SOURCES = [
+  {
+    // First, because this is the bulletin FIGURES is taken from.
+    label: "El Colombiano",
+    url: "https://www.elcolombiano.com/colombia/muertos-terremoto-en-colombia-heridos-replicas-choco-hoy-GC39809690",
+  },
   {
     label: "Infobae",
     url: "https://www.infobae.com/colombia/2026/08/10/en-vivo-fuerte-temblor-de-74-se-sintio-en-colombia-cali-y-manizales-reportan-derrumbes-en-edificaciones/",
@@ -77,18 +91,22 @@ export const COPY = {
       eyebrow: "Colombia earthquake · August 10, 2026",
       title: "Asking the crypto community to help Colombia",
       cta: "Donate now",
-      secondary: "Why onchain?",
-      ctaProof:
-        "Every donation has a public transaction. The total raised can be verified from the chain, not from a number we control.",
+      /**
+       * Three sentences, one job each: what happened, who ends up holding the
+       * money, and why the total above the form can be checked rather than
+       * believed. This is all a stranger reads before the amount buttons, so
+       * anything that does not answer one of those three belongs further down.
+       */
+      lede: "On 10 August 2026 a magnitude 7.4 earthquake struck Colombia. Donate in USDC or USDT across five networks; ReFi Colombia receives the funds and decides how they reach affected communities. Every contribution has a public transaction, so the total below can be verified from the chain rather than taken from a number we control.",
     },
     /**
-     * The letter. This is the page.
+     * The letter, which now sits below the donation form under
+     * `organizer.title` rather than opening the page.
      *
-     * Each of the four paragraphs makes ONE point and no other paragraph
-     * repeats it. Before this existed the custody claim was restated seven
-     * times across separate sections and verifiability twelve — which is why
-     * the page felt long, not because it covered too much. Everything below
-     * the letter is optional detail a reader can open.
+     * Each paragraph makes ONE point and no other paragraph repeats it. Before
+     * this existed the custody claim was restated seven times across separate
+     * sections and verifiability twelve — which is why the page felt long, not
+     * because it covered too much.
      *
      * `{deaths}`, `{injured}` and `{structures}` are filled from FIGURES so
      * the letter cannot quietly drift from the sourced numbers.
@@ -99,9 +117,15 @@ export const COPY = {
        *
        * `{deaths}`, `{injured}` and `{structures}` are filled from FIGURES so
        * the letter cannot drift from the sourced numbers when they change.
-       * `photosAfter` marks which paragraph the contact sheet follows.
+       *
+       * The first LETTER_PREVIEW paragraphs render open and the rest sit
+       * behind `readMore`. The contact sheet opens the folded part rather than
+       * sitting inside the preview: six photographs in a section meant to be
+       * skimmable would defeat the fold entirely. Nothing is cut — a reader
+       * who wants the account gets all of it, one click away.
        */
-      photosAfter: 1,
+      readMore: "Read the rest of the letter",
+      readLess: "Show less",
       paragraphs: [
         "I was born in Cali and have lived here all my life, one of the cities most affected by the 7.4 magnitude earthquake that struck Colombia on August 10.",
         "At the time of writing this, public reports speak of {deaths} people killed, {injured} injured, and {structures} collapsed structures across the country.",
@@ -122,6 +146,14 @@ export const COPY = {
        */
       threadLink: "I wrote about what that day was like, and what happened to my apartment",
     },
+    /**
+     * Heading over the letter, now that the letter no longer opens the page.
+     *
+     * Phrased as the question a stranger actually asks after seeing a form
+     * that takes their money — who is behind this — rather than as "our
+     * story", which reads as an About page nobody opens.
+     */
+    organizer: { title: "Who is behind this" },
     detailsTitle: "The detail, if you want it",
     onchain: {
       title: "Why donate onchain?",
@@ -203,17 +235,13 @@ export const COPY = {
       notConfigured:
         "Donations are not open yet — the payment account is still being connected. Nothing can be charged right now.",
     },
-    funds: {
-      title: "How the funds will be used",
-      lede: "We are not promising fixed percentages in advance. Needs can change quickly during an emergency. ReFi Colombia is responsible for deciding how the funds are allocated across affected communities in Colombia and for coordinating with organisations, foundations and people who need support.",
-      reporting:
-        "The blockchain shows how much was received and the movements between published wallets. ReFi Colombia will publish updates through its public channels explaining how the resources are ultimately used.",
-    },
-    manager: {
-      title: "Who manages the donations?",
-      body: "ReFi Colombia receives and manages the campaign funds. They are responsible for deciding the disbursements, connecting with organisations and affected people, and publishing public updates about how the resources are used.",
-      body2: "DonaOnchain never receives the money and cannot decide how it is spent.",
-    },
+    /*
+     * `funds` and `manager` used to live here as their own folded section.
+     * They were deleted, not moved by accident: between them they said "ReFi
+     * Colombia decides how the money is used" three times, and the FAQ's
+     * money group said it twice more. That whole claim is now made once, in
+     * `faq.groups[0]`, which is where a reader who doubts it goes looking.
+     */
     transparency: {
       title: "Verify it yourself",
       lede: "You do not have to trust the totals shown by this site. The donation wallet and every movement in and out of it are public.",
@@ -264,32 +292,29 @@ export const COPY = {
         {
           title: "The money",
           items: [
-            { q: "Who receives and manages the money?", a: "ReFi Colombia. They decide how the funds are distributed, and they can withdraw them at any time on their own. Between the payment and that withdrawal the money sits in the settlement contract of Voulti, the payment processor \u2014 which means Voulti can technically move it during that window. That is why withdrawing promptly matters, and why this page shows you both steps rather than claiming the money is untouchable." },
-            { q: "Who decides how the funds are used?", a: "ReFi Colombia. We are intentionally not publishing fixed percentages in advance because needs can change during the emergency. ReFi Colombia will decide the disbursements and publish updates through its public channels." },
-            { q: "What happens if something goes wrong after the donation settles?", a: "ReFi Colombia controls the funds. DonaOnchain cannot reverse or recover funds on a donor's behalf after settlement. The purpose of the public wallets and ledger is to make the movements visible rather than asking donors to trust our internal records." },
+            { q: "Who receives the money, and who decides how it is used?", a: "ReFi Colombia, on both counts. They control the wallet, decide the disbursements, coordinate with the organisations and people who need support, and publish updates through their own channels. DonaOnchain never holds the money and cannot decide how it is spent. We are deliberately not publishing fixed percentages in advance: needs change hour to hour in an emergency, and a split we could not enforce would be a promise made on ReFi Colombia\u2019s behalf." },
+            { q: "Is there a moment when someone else could move it?", a: "Yes, and it is short. Between your payment and ReFi Colombia\u2019s withdrawal the funds sit in the settlement contract of Voulti, the payment processor, which can technically move them during that window. ReFi Colombia withdraws on their own, without needing anyone\u2019s approval. This page shows you both steps rather than claiming the money is untouchable." },
+            { q: "What happens if something goes wrong after the donation settles?", a: "DonaOnchain cannot reverse or recover funds on a donor\u2019s behalf. That is the trade: the wallet and the ledger are public precisely so you can watch the money instead of trusting our internal records." },
           ],
         },
         {
           title: "Verifying it",
           items: [
-            { q: "How is this different from sending money to a bank account?", a: "With a traditional donation account, the public normally has to trust the total reported by the organiser. Here, the donation transactions and published wallet movements can be independently checked onchain. That does not prove how money is used after it is converted or spent offchain. ReFi Colombia is responsible for publishing updates about that part." },
-            { q: "What exactly can I verify onchain?", a: "Two steps, both public. First the donation itself: the transaction, the amount and the hash, paid into Voulti\u2019s settlement contract. Then the withdrawal from that contract into ReFi Colombia\u2019s wallet, listed in the movements above. The blockchain cannot by itself verify an offchain purchase or the final use of converted funds." },
+            { q: "What exactly can I verify onchain?", a: "Two steps, both public. First the donation itself: the transaction, the amount and the hash, paid into Voulti\u2019s settlement contract. Then the withdrawal from that contract into ReFi Colombia\u2019s wallet, listed in the movements above. The blockchain cannot by itself verify an offchain purchase or the final use of converted funds \u2014 that half rests on ReFi Colombia\u2019s public reporting." },
           ],
         },
         {
           title: "Donating",
           items: [
-            { q: "Which tokens and networks can I use?", a: "USDC and USDT on Celo, Base, Arbitrum One, Polygon and BNB Chain." },
-            { q: "Are there fees?", a: "A 1% payment-processing fee is deducted at settlement. Network gas is paid by the donor." },
-            { q: "Can I donate anonymously?", a: "Yes. Anonymous is the default. Your contribution and transaction remain public onchain, but DonaOnchain will not attach your name to the public ledger." },
-            { q: "Why would I add my name?", a: "People, companies and DAO treasuries that want to publicly support the campaign can choose to appear by name beside their contribution. This is optional." },
+            { q: "Which tokens and networks can I use, and are there fees?", a: "USDC and USDT on Celo, Base, Arbitrum One, Polygon and BNB Chain. A 1% payment-processing fee is deducted at settlement, and network gas is paid by you." },
+            { q: "Do I have to give my name?", a: "No. Donating by name is offered first because a ledger with real names on it is what makes others want to be on it \u2014 people, companies and DAO treasuries backing this publicly can appear beside their contribution. Choose Anonymous instead and your amount and transaction stay public onchain, while your name never appears on this site." },
             { q: "Is the donation tax-deductible?", a: "No. DonaOnchain is not a registered charity and contributions are not being presented as tax-deductible donations." },
           ],
         },
         {
           title: "The certificate",
           items: [
-            { q: "What is the contribution certificate?", a: "If enabled, named donors can request an optional shareable certificate linked to their onchain contribution. It is not a tax receipt and it does not certify how the funds were later spent." },
+            { q: "What is the contribution certificate?", a: "An optional shareable certificate in your name, registered on Celo and linked to your contribution. Only donors who ask for it get one \u2014 it is never issued by default. It does not certify how the funds were later spent." },
           ],
         },
       ],
@@ -342,12 +367,11 @@ export const COPY = {
       eyebrow: "Terremoto en Colombia · 10 de agosto de 2026",
       title: "Pidiéndole a la comunidad cripto que ayude a Colombia",
       cta: "Donar ahora",
-      secondary: "¿Por qué onchain?",
-      ctaProof:
-        "Cada donación tiene una transacción pública. El total recaudado se puede verificar desde la blockchain, no desde un número que nosotros controlemos.",
+      lede: "El 10 de agosto de 2026 un terremoto de magnitud 7.4 sacudió a Colombia. Dona en USDC o USDT en cinco redes; ReFi Colombia recibe los recursos y decide cómo llegan a las comunidades afectadas. Cada contribución tiene una transacción pública, así que el total de abajo se puede verificar desde la blockchain y no desde un número que nosotros controlemos.",
     },
     letter: {
-      photosAfter: 1,
+      readMore: "Seguir leyendo la carta",
+      readLess: "Mostrar menos",
       paragraphs: [
         "Nací y he vivido toda mi vida en Cali, una de las ciudades más afectadas por el terremoto de magnitud 7.4 que sacudió a Colombia el pasado 10 de agosto.",
         "Hasta el momento en que escribo esto, los reportes públicos hablan de {deaths} personas fallecidas, {injured} heridas y {structures} estructuras colapsadas en todo el país.",
@@ -363,6 +387,7 @@ export const COPY = {
       photoCredit: "Edificios con los que me encontré en Cali. Estas fotos las tomé yo.",
       threadLink: "Escribí sobre cómo fue ese día y cómo quedó mi apartamento",
     },
+    organizer: { title: "Quién está detrás de esto" },
     detailsTitle: "El detalle, si lo quieres",
     onchain: {
       title: "¿Por qué donar onchain?",
@@ -445,17 +470,8 @@ export const COPY = {
       notConfigured:
         "Las donaciones aún no están abiertas — la cuenta de pagos se está conectando. Por ahora no se puede cobrar nada.",
     },
-    funds: {
-      title: "Cómo se utilizarán los recursos",
-      lede: "No vamos a prometer porcentajes fijos por adelantado. Las necesidades pueden cambiar rápidamente durante una emergencia. ReFi Colombia es responsable de decidir cómo se distribuyen los recursos entre las comunidades afectadas en Colombia y de coordinar con organizaciones, fundaciones y personas que necesiten apoyo.",
-      reporting:
-        "La blockchain muestra cuánto se recibió y los movimientos entre las wallets publicadas. ReFi Colombia publicará a través de sus canales actualizaciones sobre cómo se utilizan finalmente los recursos.",
-    },
-    manager: {
-      title: "¿Quién administra las donaciones?",
-      body: "ReFi Colombia recibe y administra los recursos de la campaña. Ellos son responsables de decidir los desembolsos, conectarse con organizaciones y personas afectadas, y publicar actualizaciones sobre cómo se utilizan los recursos.",
-      body2: "DonaOnchain nunca recibe el dinero ni decide en qué se gasta.",
-    },
+    /* Ver la nota en el bloque `en`: `funds` y `manager` se eliminaron porque
+       repetían lo que ahora dice una sola vez `faq.groups[0]`. */
     transparency: {
       title: "Verifícalo tú mismo",
       lede: "No tienes que confiar en los totales que muestra este sitio. La wallet de donaciones y todos sus movimientos de entrada y salida son públicos.",
@@ -508,32 +524,29 @@ export const COPY = {
         {
           title: "El dinero",
           items: [
-            { q: "¿Quién recibe y administra el dinero?", a: "ReFi Colombia. Ellos deciden cómo se distribuyen los recursos y pueden retirarlos cuando quieran, por su cuenta. Entre el pago y ese retiro el dinero está en el contrato de liquidación de Voulti, la pasarela de pagos, lo que significa que Voulti técnicamente puede moverlo durante esa ventana. Por eso importa que retiren pronto, y por eso esta página te muestra los dos pasos en vez de afirmar que el dinero es intocable." },
-            { q: "¿Quién decide cómo se utilizan los recursos?", a: "ReFi Colombia. Intencionalmente no estamos publicando porcentajes fijos por adelantado porque las necesidades pueden cambiar durante la emergencia. ReFi Colombia decidirá los desembolsos y publicará actualizaciones a través de sus canales." },
-            { q: "¿Qué pasa si algo sale mal después de que la donación se liquida?", a: "ReFi Colombia controla los recursos. DonaOnchain no puede reversar ni recuperar fondos en nombre de un donante después de la liquidación. El propósito de las wallets públicas y del libro de donaciones es hacer visibles los movimientos en lugar de pedirle a los donantes que confíen en nuestros registros internos." },
+            { q: "¿Quién recibe el dinero y quién decide en qué se usa?", a: "ReFi Colombia, en ambos casos. Ellos controlan la wallet, deciden los desembolsos, se coordinan con las organizaciones y personas que necesitan apoyo, y publican actualizaciones por sus propios canales. DonaOnchain nunca tiene el dinero ni decide en qué se gasta. Intencionalmente no publicamos porcentajes fijos por adelantado: en una emergencia las necesidades cambian hora a hora, y un reparto que no podríamos hacer cumplir sería una promesa hecha a nombre de ReFi Colombia." },
+            { q: "¿Hay algún momento en que alguien más podría moverlo?", a: "Sí, y es corto. Entre tu pago y el retiro de ReFi Colombia los recursos están en el contrato de liquidación de Voulti, la pasarela de pagos, que técnicamente puede moverlos durante esa ventana. ReFi Colombia retira por su cuenta, sin necesitar la aprobación de nadie. Esta página te muestra los dos pasos en vez de afirmar que el dinero es intocable." },
+            { q: "¿Qué pasa si algo sale mal después de que la donación se liquida?", a: "DonaOnchain no puede reversar ni recuperar fondos en nombre de un donante. Ese es el trato: la wallet y el libro de donaciones son públicos precisamente para que puedas vigilar el dinero en vez de confiar en nuestros registros internos." },
           ],
         },
         {
           title: "Cómo verificarlo",
           items: [
-            { q: "¿En qué se diferencia esto de enviar dinero a una cuenta bancaria?", a: "Con una cuenta de donaciones tradicional, normalmente el público tiene que confiar en el total reportado por el organizador. Aquí, las transacciones de las donaciones y los movimientos de las wallets publicadas se pueden verificar de forma independiente onchain. Eso no prueba cómo se utiliza el dinero después de convertirlo o gastarlo fuera de la cadena. ReFi Colombia es responsable de publicar actualizaciones sobre esa parte." },
-            { q: "¿Qué puedo verificar exactamente onchain?", a: "Dos pasos, ambos públicos. Primero la donación: la transacción, el monto y el hash, pagados al contrato de liquidación de Voulti. Después el retiro desde ese contrato hacia la wallet de ReFi Colombia, listado en los movimientos de arriba. La blockchain por sí sola no puede verificar una compra fuera de la cadena ni el uso final de recursos ya convertidos." },
+            { q: "¿Qué puedo verificar exactamente onchain?", a: "Dos pasos, ambos públicos. Primero la donación: la transacción, el monto y el hash, pagados al contrato de liquidación de Voulti. Después el retiro desde ese contrato hacia la wallet de ReFi Colombia, listado en los movimientos de arriba. La blockchain por sí sola no puede verificar una compra fuera de la cadena ni el uso final de recursos ya convertidos — esa mitad se apoya en los reportes públicos de ReFi Colombia." },
           ],
         },
         {
           title: "Donar",
           items: [
-            { q: "¿Qué tokens y redes puedo usar?", a: "USDC y USDT en Celo, Base, Arbitrum One, Polygon y BNB Chain." },
-            { q: "¿Hay comisiones?", a: "Se descuenta un 1% de procesamiento al liquidar. El gas de red lo paga el donante." },
-            { q: "¿Puedo donar de forma anónima?", a: "Sí. Es la opción predeterminada. Tu contribución y la transacción siguen siendo públicas onchain, pero DonaOnchain no asociará tu nombre al libro público." },
-            { q: "¿Por qué querría agregar mi nombre?", a: "Las personas, empresas y tesorerías de DAOs que quieran apoyar públicamente la campaña pueden elegir aparecer con su nombre junto a su contribución. Es opcional." },
+            { q: "¿Qué tokens y redes puedo usar, y hay comisiones?", a: "USDC y USDT en Celo, Base, Arbitrum One, Polygon y BNB Chain. Se descuenta un 1% de procesamiento al liquidar, y el gas de red lo pagas tú." },
+            { q: "¿Tengo que dar mi nombre?", a: "No. Donar con nombre aparece primero porque un libro de donaciones con nombres reales es lo que hace que otros quieran estar en él — personas, empresas y tesorerías de DAOs que apoyan esto públicamente pueden aparecer junto a su contribución. Si eliges Anónimo, tu monto y tu transacción siguen siendo públicos onchain, pero tu nombre no aparece en este sitio." },
             { q: "¿La donación es deducible de impuestos?", a: "No. DonaOnchain no es una entidad sin ánimo de lucro registrada y estas contribuciones no se presentan como donaciones deducibles de impuestos." },
           ],
         },
         {
           title: "El certificado",
           items: [
-            { q: "¿Qué es el certificado de contribución?", a: "Si está habilitado, quienes donen con su nombre pueden solicitar un certificado compartible vinculado a su contribución onchain. No es un certificado tributario ni certifica cómo se gastaron posteriormente los recursos." },
+            { q: "¿Qué es el certificado de contribución?", a: "Un certificado opcional y compartible a tu nombre, registrado en Celo y vinculado a tu contribución. Solo lo recibe quien lo pide — nunca se emite por defecto. No certifica cómo se gastaron posteriormente los recursos." },
           ],
         },
       ],

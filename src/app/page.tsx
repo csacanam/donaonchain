@@ -29,7 +29,9 @@ export default async function HomePage() {
     token: d.token,
     networkLabel: networkLabel(d.network),
     txUrl: explorerUrl(d.network, d.txHash),
-    certificateUrl: d.certificateUrl,
+    // `certificateUrl` is deliberately not forwarded. It rode along to the
+    // client for a while without ever being rendered; the certificate is shown
+    // on the donor's own thank-you page, not in the public ledger.
   }));
 
   const tracked = trackedAddresses();

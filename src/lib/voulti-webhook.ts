@@ -114,6 +114,9 @@ async function handleSettlement(invoiceId: string): Promise<void> {
     amountUsd: invoice.amount_fiat,
     donorName: existing?.donorName ?? null,
     showName: existing?.showName ?? false,
+    // `=== true`, not `?? false`: a record written before this field existed
+    // carries no answer, and no answer must not buy anybody a credential.
+    wantsCertificate: existing?.wantsCertificate === true,
     donorEmail: existing?.donorEmail ?? null,
     status: invoice.status,
     createdAt: existing?.createdAt ?? new Date().toISOString(),
@@ -145,7 +148,16 @@ async function handleSettlement(invoiceId: string): Promise<void> {
   // Same claim the thank-you page takes. Whichever path gets here first
   // issues; the other finds the claim taken and leaves it alone, so one
   // donation can never mint two paid credentials.
-  if (record.donorName && (await claimCertificateAttempt(invoiceId))) {
+  //
+  // `wantsCertificate` is checked FIRST and on purpose. The condition used to
+  // be the donor's name alone, which meant a donor who was shown the question
+  // and answered "no, thanks" still had $0.10 spent and a credential minted in
+  // their name. A name is what a certificate needs, not a request for one.
+  if (
+    record.wantsCertificate &&
+    record.donorName &&
+    (await claimCertificateAttempt(invoiceId))
+  ) {
     const credential = await issueDonationCertificate({
       donorName: record.donorName,
       amountUsd: record.amountUsd,

@@ -57,13 +57,27 @@ export type Org = {
 };
 
 /**
+ * Where every mention of ReFi Colombia points, in one place.
+ *
+ * Their own site, not their Instagram. A donor following the name of the
+ * organisation that will hold the money lands on the page that states what it
+ * is and links its own subsidy dashboard, treasury and reports — a social
+ * profile makes them judge an organisation by its last post.
+ *
+ * Declared above INLINE_LINKS deliberately: `const` is not hoisted, so a
+ * reference from the array literal below would be evaluated before this line
+ * runs and throw at module load.
+ */
+const RECIPIENT_URL = "https://reficolombia.org";
+
+/**
  * Names that become links wherever they appear in body copy.
  *
  * Longest first: "ReFi Colombia" has to be matched before "ReFi DAO" would
  * otherwise chew into it, and both before any bare "ReFi".
  */
 export const INLINE_LINKS: { name: string; url: string }[] = [
-  { name: "ReFi Colombia", url: "https://www.instagram.com/reficolombia" },
+  { name: "ReFi Colombia", url: RECIPIENT_URL },
   { name: "ReFi DAO", url: "https://refidao.com" },
 ];
 
@@ -71,7 +85,7 @@ export const INLINE_LINKS: { name: string; url: string }[] = [
 export const RECIPIENT: Org = {
   key: "reficolombia",
   name: "ReFi Colombia",
-  url: "https://www.instagram.com/reficolombia",
+  url: RECIPIENT_URL,
   confirmed: true,
   role: { en: "Receives & distributes", es: "Recibe y distribuye" },
 };

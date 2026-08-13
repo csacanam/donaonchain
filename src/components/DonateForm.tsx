@@ -41,7 +41,17 @@ export function DonateForm({ lang, enabled, certificatesEnabled }: Props) {
    */
   const [showName, setShowName] = useState(true);
   const [name, setName] = useState("");
-  const [wantsCertificate, setWantsCertificate] = useState(false);
+  /**
+   * Pre-selected as yes, and the answer is now actually sent — it used to be
+   * collected here and dropped on submit, so every named donor received a
+   * credential regardless of what they picked.
+   *
+   * Yes is the default because this question is only ever shown to someone who
+   * has already chosen to appear publicly by name, and the certificate is the
+   * thing they can share. Flipping it costs one tap, and a donor who declines
+   * is now genuinely not charged for and not issued one.
+   */
+  const [wantsCertificate, setWantsCertificate] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -81,6 +91,11 @@ export function DonateForm({ lang, enabled, certificatesEnabled }: Props) {
           amount,
           name: showName && name.trim() ? name.trim() : undefined,
           showName: showName && name.trim().length > 0,
+          // Gated on the question having actually been asked. When issuance is
+          // switched off, or the donor is anonymous, the radio is never
+          // rendered and its state is whatever the default happened to be —
+          // sending that would request a certificate nobody was offered.
+          wantsCertificate: showCertificateQuestion && wantsCertificate,
         }),
       });
 

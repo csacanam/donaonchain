@@ -35,6 +35,7 @@ export async function POST(req: Request) {
     amount?: unknown;
     name?: unknown;
     showName?: unknown;
+    wantsCertificate?: unknown;
   };
   try {
     body = await req.json();
@@ -65,6 +66,12 @@ export async function POST(req: Request) {
   // name is not a decision to infer from a loosely-typed field.
   const showName = body.showName === true && donorName !== null;
 
+  // Same strictness, for the same reason: issuing a certificate spends money
+  // and mints a credential in a person's name that can only ever be revoked,
+  // never edited. A request has to say `true` outright, and it means nothing
+  // without a name to put on the artwork.
+  const wantsCertificate = body.wantsCertificate === true && donorName !== null;
+
   const reference = `don_${randomUUID()}`;
 
   try {
@@ -85,6 +92,7 @@ export async function POST(req: Request) {
       amountUsd,
       donorName,
       showName,
+      wantsCertificate,
       donorEmail,
       status: "Pending",
       createdAt: new Date().toISOString(),

@@ -25,6 +25,22 @@ export type DonationRecord = {
    * public page next to what they gave.
    */
   showName: boolean;
+  /**
+   * Whether the donor actually asked for a certificate.
+   *
+   * Separate from both `showName` and `donorName`, because issuing one spends
+   * $0.10 and writes a credential to a chain that can afterwards be revoked
+   * but never edited. The form asks the question outright, so honouring the
+   * answer is the entire point of asking it — for a while it did not, and
+   * every named donor got one whether or not they said yes.
+   *
+   * Records written before this field existed carry `undefined`. Every read
+   * therefore tests `=== true`, so an unknown answer counts as "not asked
+   * for": a donor who wanted one and did not get it can be issued one later,
+   * while a credential minted in the name of someone who declined cannot be
+   * un-minted.
+   */
+  wantsCertificate: boolean;
   /** Never leaves the server — stripped from every public projection. */
   donorEmail: string | null;
   status: DonationStatus;
