@@ -2,6 +2,8 @@
 
 import { AUTHOR } from "@/lib/author";
 import { COPY, FIGURES, SOURCES, type Lang } from "@/lib/content";
+import { addressUrlFrom, labelFor, shortAddress } from "@/lib/addresses";
+import { DISBURSEMENTS } from "@/lib/disbursements";
 // RECIPIENT is deliberately no longer imported: the removed "who manages the
 // donations" fold was the only place that linked it by hand, and every other
 // mention of ReFi Colombia in body copy is already turned into a link by
@@ -481,6 +483,9 @@ export function Campaign(props: CampaignProps) {
                       {t.transparency.colNetwork}
                     </th>
                     <th scope="col" className="px-3 py-2 font-medium">
+                      {t.transparency.colCounterparty}
+                    </th>
+                    <th scope="col" className="px-3 py-2 font-medium">
                       {t.transparency.colTx}
                     </th>
                   </tr>
@@ -508,6 +513,33 @@ export function Campaign(props: CampaignProps) {
                         <span className="font-normal text-faint">{m.symbol}</span>
                       </td>
                       <td className="whitespace-nowrap px-3 py-2">{m.chainLabel}</td>
+
+                      {/* The other side of the transfer. Named when we can
+                          vouch for it, a truncated address linked to the
+                          explorer when we cannot — never blank, and never a
+                          guess. */}
+                      <td className="px-3 py-2">
+                        {(() => {
+                          const name = labelFor(m.counterparty, lang);
+                          const url = addressUrlFrom(m.txUrl, m.counterparty);
+                          const shown = name ?? shortAddress(m.counterparty);
+                          return url ? (
+                            <a
+                              href={url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={`underline decoration-line underline-offset-4 hover:text-accent ${
+                                name ? "" : "font-mono text-xs"
+                              }`}
+                            >
+                              {shown}
+                            </a>
+                          ) : (
+                            <span className={name ? "" : "font-mono text-xs"}>{shown}</span>
+                          );
+                        })()}
+                      </td>
+
                       <td className="whitespace-nowrap px-3 py-2">
                         <a
                           href={m.txUrl}
@@ -559,6 +591,64 @@ export function Campaign(props: CampaignProps) {
                 movements behind a click, and they are the page's whole
                 argument, so they were promoted into a section of their own
                 above. */}
+
+            {/* Only rendered once there is something to render. An empty
+                "what has been handed out" heading is a promise, and a promise
+                that stays empty for three weeks says more than no section. */}
+            {DISBURSEMENTS.length > 0 && (
+              <Detail title={t.transparency.disbursementsTitle}>
+                <p>{t.transparency.disbursementsLede}</p>
+                <ul className="mt-4 space-y-4">
+                  {DISBURSEMENTS.map((d) => (
+                    <li key={`${d.date}-${d.recipient}`} className="border-t border-line-soft pt-3">
+                      <div className="flex flex-wrap items-baseline justify-between gap-x-3">
+                        <span className="font-medium text-fg">{d.recipient}</span>
+                        <span className="font-semibold tnum text-fg">
+                          {num(d.amount, lang)} {d.currency}
+                        </span>
+                      </div>
+                      <p className="mt-1">{d.purpose[lang]}</p>
+
+                      {/* The distinction is the point, so it is a visible
+                          badge and not a footnote: green and checkable, or
+                          muted and attested. */}
+                      <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                        {d.kind === "onchain" && d.txUrl ? (
+                          <a
+                            href={d.txUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-settled underline underline-offset-4"
+                          >
+                            {t.transparency.disbursementVerified} →
+                          </a>
+                        ) : (
+                          <span className="text-faint">{t.transparency.disbursementReported}</span>
+                        )}
+
+                        {d.evidence?.length
+                          ? d.evidence.map((e) => (
+                              <a
+                                key={e.url}
+                                href={e.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="underline decoration-line underline-offset-4 hover:text-accent"
+                              >
+                                {e.label[lang]}
+                              </a>
+                            ))
+                          : d.kind === "reported" && (
+                              <span className="text-faint">
+                                {t.transparency.disbursementNoEvidence}
+                              </span>
+                            )}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              </Detail>
+            )}
 
             {/* One fold per theme rather than twelve questions in a row.
                 Flat, the list read as an undifferentiated wall; grouped, a

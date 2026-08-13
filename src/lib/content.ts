@@ -268,7 +268,13 @@ export const COPY = {
       colDirection: "Direction",
       inbound: "In",
       outbound: "Out",
-      colCounterparty: "Counterparty",
+      colCounterparty: "From / to",
+      disbursementsTitle: "What has been handed out",
+      disbursementsLede:
+        "Where the money went after it left ReFi Colombia's wallet. Stablecoin payments carry their transaction, so you can check them yourself. Anything paid in pesos or spent offchain is reported by ReFi Colombia with whatever evidence exists — a claim with documents behind it, which is not the same thing as a proof, and this page will not pretend otherwise.",
+      disbursementVerified: "Verifiable onchain",
+      disbursementReported: "Reported by ReFi Colombia",
+      disbursementNoEvidence: "No supporting documents published yet.",
     },
     orgs: {
       technologyTitle: "With the support of",
@@ -500,7 +506,13 @@ export const COPY = {
       colDirection: "Dirección",
       inbound: "Entra",
       outbound: "Sale",
-      colCounterparty: "Contraparte",
+      colCounterparty: "Desde / hacia",
+      disbursementsTitle: "Lo que se ha entregado",
+      disbursementsLede:
+        "A dónde fue el dinero después de salir de la wallet de ReFi Colombia. Los pagos en stablecoins traen su transacción, así que puedes comprobarlos tú mismo. Lo que se pagó en pesos o se gastó fuera de la cadena lo reporta ReFi Colombia con la evidencia que exista — es una afirmación con documentos detrás, que no es lo mismo que una prueba, y esta página no va a fingir lo contrario.",
+      disbursementVerified: "Verificable onchain",
+      disbursementReported: "Reportado por ReFi Colombia",
+      disbursementNoEvidence: "Aún sin documentos de respaldo publicados.",
     },
     orgs: {
       technologyTitle: "Con el apoyo de",

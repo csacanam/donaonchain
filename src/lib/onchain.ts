@@ -263,17 +263,31 @@ async function scanChain(
   return { movements, partial };
 }
 
+/**
+ * Reads movements recorded by earlier passes.
+ *
+ * Members are written with `JSON.stringify`, but they do NOT come back as
+ * strings: the Upstash client sees JSON on the way out and deserialises it, so
+ * `zrange` hands back objects. Parsing them again threw on every single entry,
+ * and the `catch` turned that into an empty list — the movements table sat
+ * saying "nothing has moved through this wallet" while two transfers were
+ * stored and readable. Both shapes are accepted here so neither the current
+ * client nor a raw string written by an older one is silently dropped.
+ */
 async function loadStored(chainKey: string, limit: number): Promise<Movement[]> {
   const r = redis();
   if (!r) return [];
-  const raw = await r.zrange<string[]>(movesKey(chainKey), 0, limit - 1, { rev: true });
+  const raw = await r.zrange<unknown[]>(movesKey(chainKey), 0, limit - 1, { rev: true });
   return raw
-    .map((s) => {
-      try {
-        return JSON.parse(s) as Movement;
-      } catch {
-        return null;
+    .map((entry) => {
+      if (typeof entry === "string") {
+        try {
+          return JSON.parse(entry) as Movement;
+        } catch {
+          return null;
+        }
       }
+      return entry && typeof entry === "object" ? (entry as Movement) : null;
     })
     .filter((m): m is Movement => m !== null);
 }
