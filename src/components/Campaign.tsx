@@ -617,7 +617,10 @@ export function Campaign(props: CampaignProps) {
         </section>
 
         {/* ------------------------------------------------ Folded detail */}
-        <section className="pb-10">
+        {/* pt-12 like every section above it. This one and the logo row were
+            the only two with no top padding at all, so the questions ran
+            straight into the bottom of the movements table. */}
+        <section className="pt-12 pb-10">
           <h2 className="text-sm font-medium uppercase tracking-wider text-faint">
             {t.faq.title}
           </h2>
@@ -694,7 +697,7 @@ export function Campaign(props: CampaignProps) {
           </div>
         </section>
 
-        <section className="pb-10">
+        <section className="pt-12 pb-10">
           <LogoWall
             lang={lang}
             orgs={visible(SUPPORTERS)}
