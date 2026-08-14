@@ -556,43 +556,8 @@ export function Campaign(props: CampaignProps) {
               </table>
             </div>
           )}
-        </section>
 
-        {/* ------------------------------------------------ Folded detail */}
-        <section className="pb-10">
-          <h2 className="text-sm font-medium uppercase tracking-wider text-faint">
-            {t.detailsTitle}
-          </h2>
-          <div className="mt-2 rounded-2xl border border-line bg-surface px-5">
-            <Detail title={t.onchain.title}>
-              <p><LinkedText>{t.onchain.body}</LinkedText></p>
-              <p className="mt-3"><LinkedText>{t.onchain.body2}</LinkedText></p>
-            </Detail>
-
-            <Detail title={t.flow.title}>
-              <ol className="space-y-4">
-                {t.flow.steps.map((step, i) => (
-                  <li key={step.title}>
-                    <span aria-hidden className="text-xs font-semibold tnum text-accent">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <p className="font-semibold text-fg">
-                      <LinkedText>{step.title}</LinkedText>
-                    </p>
-                    <p className="mt-1"><LinkedText>{step.body}</LinkedText></p>
-                  </li>
-                ))}
-              </ol>
-            </Detail>
-
-            {/* The "who manages the donations" and "verify it yourself" folds
-                used to sit here. The first repeated, three times over, what
-                faq.groups[0] now says once; the second hid the wallet and its
-                movements behind a click, and they are the page's whole
-                argument, so they were promoted into a section of their own
-                above. */}
-
-            {/* Only rendered once there is something to render. An empty
+          {/* Only rendered once there is something to render. An empty
                 "what has been handed out" heading is a promise, and a promise
                 that stays empty for three weeks says more than no section. */}
             {DISBURSEMENTS.length > 0 && (
@@ -609,7 +574,7 @@ export function Campaign(props: CampaignProps) {
                       </div>
                       <p className="mt-1">{d.purpose[lang]}</p>
 
-                      {/* The distinction is the point, so it is a visible
+                    {/* The distinction is the point, so it is a visible
                           badge and not a footnote: green and checkable, or
                           muted and attested. */}
                       <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
@@ -649,6 +614,41 @@ export function Campaign(props: CampaignProps) {
                 </ul>
               </Detail>
             )}
+        </section>
+
+        {/* ------------------------------------------------ Folded detail */}
+        <section className="pb-10">
+          <h2 className="text-sm font-medium uppercase tracking-wider text-faint">
+            {t.faq.title}
+          </h2>
+          <div className="mt-2 rounded-2xl border border-line bg-surface px-5">
+            <Detail title={t.onchain.title}>
+              <p><LinkedText>{t.onchain.body}</LinkedText></p>
+              <p className="mt-3"><LinkedText>{t.onchain.body2}</LinkedText></p>
+            </Detail>
+
+            <Detail title={t.flow.title}>
+              <ol className="space-y-4">
+                {t.flow.steps.map((step, i) => (
+                  <li key={step.title}>
+                    <span aria-hidden className="text-xs font-semibold tnum text-accent">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <p className="font-semibold text-fg">
+                      <LinkedText>{step.title}</LinkedText>
+                    </p>
+                    <p className="mt-1"><LinkedText>{step.body}</LinkedText></p>
+                  </li>
+                ))}
+              </ol>
+            </Detail>
+
+            {/* The "who manages the donations" and "verify it yourself" folds
+                used to sit here. The first repeated, three times over, what
+                faq.groups[0] now says once; the second hid the wallet and its
+                movements behind a click, and they are the page's whole
+                argument, so they were promoted into a section of their own
+                above. */}
 
             {/* One fold per theme rather than twelve questions in a row.
                 Flat, the list read as an undifferentiated wall; grouped, a

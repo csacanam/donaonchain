@@ -154,7 +154,6 @@ export const COPY = {
      * story", which reads as an About page nobody opens.
      */
     organizer: { title: "Who is behind this" },
-    detailsTitle: "The detail, if you want it",
     onchain: {
       title: "Why donate onchain?",
       body: "With a traditional donation account, the public usually has to trust the total reported by the organiser. Here, anyone can independently verify the donations that arrived, the amount received and the movements between the published wallets.",
@@ -395,7 +394,6 @@ export const COPY = {
       threadLink: "Escribí sobre cómo fue ese día y cómo quedó mi apartamento",
     },
     organizer: { title: "Quién está detrás de esto" },
-    detailsTitle: "El detalle, si lo quieres",
     onchain: {
       title: "¿Por qué donar onchain?",
       body: "Con una cuenta de donaciones tradicional, normalmente el público tiene que confiar en el total que reporta el organizador. Aquí, cualquier persona puede verificar de forma independiente las donaciones que llegaron, el monto recibido y los movimientos entre las wallets publicadas.",
