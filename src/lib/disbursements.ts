@@ -58,10 +58,52 @@ export type Disbursement = {
 };
 
 /**
- * Empty on purpose. Nothing has been disbursed yet: the donations received so
- * far were withdrawn from Voulti and swept into ReFi Colombia's treasury, and
- * both of those movements are already visible in the movements table. The
- * section renders only once this list has something in it — an empty
- * "disbursements" heading would read as a promise the page cannot keep.
+ * The first disbursement went through an intermediary, and the entry says so
+ * rather than flattening it into one clean hop:
+ *
+ *  1. On 16 Sep 2026 the stablecoins went onchain to wallets of a person who
+ *     converted them to pesos: 999,371.45 COPm on Celo from ReFi Colombia's
+ *     Safe (0x8c5f…b7c5 → 0x4263…317a), and 14.86 USDC on Base plus 24.77
+ *     USDC on Polygon withdrawn straight from Voulti's settlement contracts
+ *     (→ 0x4173…2d2c). The two USDC withdrawals never touch the intake
+ *     wallet, so they do not appear in the movements table — the links below
+ *     are the only place a reader can see them.
+ *  2. On 21 Sep 2026 COP 1,115,000 was sent to Margen by Bre-B transfer.
+ *
+ * Step 1 is verifiable; step 2 is a screenshot. The last hop is pesos, so the
+ * entry as a whole is `reported`, with the onchain legs attached as evidence.
  */
-export const DISBURSEMENTS: Disbursement[] = [];
+export const DISBURSEMENTS: Disbursement[] = [
+  {
+    date: "2026-09-21",
+    recipient: "Margen",
+    purpose: {
+      en: "All donations received so far (999,371 COPm + 39.63 USDC), converted to pesos by an intermediary and sent to the foundation by bank transfer.",
+      es: "Todas las donaciones recibidas hasta ahora (999.371 COPm + 39,63 USDC), convertidas a pesos por un intermediario y enviadas a la fundación por transferencia bancaria.",
+    },
+    amount: 1_115_000,
+    currency: "COP",
+    kind: "reported",
+    evidence: [
+      {
+        label: { en: "Tx 1: 999,371 COPm (Celo)", es: "Tx 1: 999.371 COPm (Celo)" },
+        url: "https://celo.blockscout.com/tx/0xddbf55d397ccde5f42ec1030e526dd4407d8c941251c74b3a00320ed5df00202",
+      },
+      {
+        label: { en: "Tx 2: 14.86 USDC (Base)", es: "Tx 2: 14,86 USDC (Base)" },
+        url: "https://basescan.org/tx/0x3fe35e957e0489171740756607c32649ef2148ee906f870d44074202d4e43d04",
+      },
+      {
+        label: { en: "Tx 3: 24.77 USDC (Polygon)", es: "Tx 3: 24,77 USDC (Polygon)" },
+        url: "https://polygonscan.com/tx/0xdee5eddd8c31896142763d9da25e181bab55eb587ae8a3abb44953cfe6f5d618",
+      },
+      {
+        label: {
+          en: "Peso transfer receipt and conversation with Margen",
+          es: "Comprobante de la transferencia y conversación con Margen",
+        },
+        url: "/evidence/margen-transferencia-2026-09-21.jpg",
+      },
+    ],
+  },
+];
